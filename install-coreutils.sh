@@ -12,9 +12,16 @@ DEBS="libattr1 libacl1 libgcc1 libc6 libpcre3 libselinux1 libzstd1 zlib1g liblzm
 #DEBS="libattr1 libc6 libgcc1 libpcre3 libacl1 libc6 libselinux1   libbz2-1.0 liblzma5 zlib1g"
 dpkg -i $(add_deb_path ${DEBS})
 
-# unpack the files from coreutils and dash so that we have what we need on the filesystem to switch
+# unpack the files from a few core packages so that we have what we need on the filesystem to switch
 # over to using our own libraries from inside the chroot
-dpkg --unpack $(add_deb_path coreutils dash)
+dpkg --unpack $(add_deb_path \
+    coreutils \
+    dash \
+    grep \
+    sed \
+    dpkg \
+    tar \
+)
 
 # the mountpoint is now sufficiently configured that we can setup the path and switch over to using
 # the libraries from inside the chroot

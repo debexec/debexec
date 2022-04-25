@@ -1,0 +1,34 @@
+# configure minimal dpkg folders and files
+mkdir -p /var/lib/dpkg/{info,updates}
+touch /var/lib/dpkg/status
+
+# install the dependencies required by coreutils, dpkg, and dash
+install_deps --and-package gcc-8-base
+
+# note: these dependencies must be installed in a _very_ specific order and our dependency resolver
+# is not smart enough to handle that yet
+#install_deps --simultaneously dpkg
+DEBS="libattr1 libacl1 libgcc1 libc6 libpcre3 libselinux1 libzstd1 zlib1g liblzma5 libbz2-1.0"
+#DEBS="libattr1 libc6 libgcc1 libpcre3 libacl1 libc6 libselinux1   libbz2-1.0 liblzma5 zlib1g"
+dpkg -i $(add_deb_path ${DEBS})
+
+# unpack the files from coreutils and dash so that we have what we need on the filesystem to switch
+# over to using our own libraries from inside the chroot
+dpkg --unpack $(add_deb_path coreutils dash)
+
+# the mountpoint is now sufficiently configured that we can setup the path and switch over to using
+# the libraries from inside the chroot
+export PATH=/usr/bin:/bin:/usr/sbin:/REAL_ROOT/sbin:/REAL_ROOT/usr/bin:/REAL_ROOT/bin
+unset LD_LIBRARY_PATH
+mkdir -p /etc/alternatives /var/log /var/lib/dpkg/alternatives
+
+# finish installing coreutils, dpkg, and dash
+install_deps --and-package coreutils debianutils dpkg
+install_deps dash
+install_deps --and-package mawk dash
+
+# needed for "pager" in dpkg (dpkg -l):
+install_deps --and-package less
+
+# needed for actually installing anything with apt
+install_deps --and-package libc-bin diffutils

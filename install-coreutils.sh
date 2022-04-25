@@ -38,4 +38,8 @@ install_deps --and-package mawk dash
 install_deps --and-package less
 
 # needed for actually installing anything with apt
-install_deps --and-package libc-bin diffutils
+install_deps --and-package \
+    libc-bin \
+    diffutils \
+    findutils \
+;

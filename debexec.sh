@@ -29,8 +29,8 @@ while [ "${SHIFT}" -ne "0" ]; do
 done
 #echo $FAKEROOT
 
-DEBPATH=/var/cache/debexec/aptcache
-#DEBPATH=/var/cache/pbuilder/aptcache
+DEBPATH=/REAL_ROOT/var/cache/debexec/aptcache
+#DEBPATH=/REAL_ROOT/var/cache/pbuilder/aptcache
 
 . "${DIR}"/config-root.sh
 . /REAL_ROOT/"${DIR}"/config-loader.sh

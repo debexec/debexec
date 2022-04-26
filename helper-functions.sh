@@ -1,12 +1,12 @@
 add_deb_path() {
     DEBS=""
     for DEB in $@; do
-        if [ -f /REAL_ROOT/${DEBPATH}/${DEB} ]; then
-            DEBS="${DEBS} /REAL_ROOT/${DEBPATH}/${DEB}"
-        elif [ -f /REAL_ROOT/${DEBPATH}/${DEB}_*.deb ]; then
-            DEBS="${DEBS} /REAL_ROOT/${DEBPATH}/${DEB}_*.deb"
+        if [ -f ${DEBPATH}/${DEB} ]; then
+            DEBS="${DEBS} /${DEBPATH}/${DEB}"
+        elif [ -f ${DEBPATH}/${DEB}_*.deb ]; then
+            DEBS="${DEBS} ${DEBPATH}/${DEB}_*.deb"
         else
-            echo "warning: ${DEB} does not appear to exist at /REAL_ROOT/${DEBPATH}/" 1>&2
+            echo "warning: ${DEB} does not appear to exist at ${DEBPATH}/" 1>&2
         fi
     done
     echo "${DEBS}"

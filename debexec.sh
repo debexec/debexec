@@ -44,9 +44,14 @@ DEBPATH=/var/cache/debexec/aptcache
 
 # TODO: call application-specific configuration for installing packages
 
+# store the user ID and group ID of the user for later use
+mkdir -p /var/cache/debexec
+echo "${DEBEXEC_UID}" > /var/cache/debexec/uid
+echo "${DEBEXEC_GID}" > /var/cache/debexec/gid
+
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
-    exec /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid "${DEBEXEC_UID}" "${DEBEXEC_GID}" "${SHELL}"
+    exec /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid "${SHELL}"
 else
     # launch a root shell:
     exec "${SHELL}"

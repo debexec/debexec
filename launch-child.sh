@@ -4,9 +4,9 @@ REVERTUID=0
 if [ "$1" = "--revertuid" ]; then
     REVERTUID=1
     USEPROC="--use-proc"
-    DEBEXEC_UID="$2"
-    DEBEXEC_GID="$3"
-    shift 3
+    DEBEXEC_UID=$(cat /var/cache/debexec/uid)
+    DEBEXEC_GID=$(cat /var/cache/debexec/gid)
+    shift 1
 fi
 
 ARGS="$@"

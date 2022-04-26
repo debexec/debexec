@@ -1,4 +1,4 @@
-#!/bin/bash -i
+#!/bin/bash
 
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
@@ -8,12 +8,7 @@ if [ "$1" != "--fakeroot" ]; then
     #"${DIR}"/mapuids "$0" "${FAKEROOT}"
     #unshare -Urm sh -c "exec \"${DIR}\"/mapuids \"$0\" \"${FAKEROOT}\""
 
-    unshare -Um "$0" --fakeroot "${FAKEROOT}" "$@" &
-    #"${DIR}"/mapuids "$0" "${FAKEROOT}" &
-    PID=$!
-    . "${DIR}"/config-ids.sh
-    fg %1
-    wait ${PID}
+    /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" "$@"
     rm -rf "${FAKEROOT}"
     exit 0
 fi

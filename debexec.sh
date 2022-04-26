@@ -8,19 +8,21 @@ if [ "$1" != "--fakeroot" ]; then
     #"${DIR}"/mapuids "$0" "${FAKEROOT}"
     #unshare -Urm sh -c "exec \"${DIR}\"/mapuids \"$0\" \"${FAKEROOT}\""
 
-    /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" "$@"
+    /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" --userid $(id -u) --groupid $(id -g) "$@"
     rm -rf "${FAKEROOT}"
     exit 0
 fi
 
-sleep 1 # give the ID mapping an opportunity to be configured
-
 unset TMPDIR # do not use the external temporary directory
 
+ASROOT=0
 SHIFT=1
 while [ "${SHIFT}" -ne "0" ]; do
     case "$1" in
         --fakeroot) FAKEROOT="$2"; SHIFT=2;;
+        --userid) DEBEXEC_UID="$2"; SHIFT=2;;
+        --groupid) DEBEXEC_GID="$2"; SHIFT=2;;
+        --as-root) ASROOT=1; SHIFT=1;;
         *) SHIFT=0;;
     esac
     shift ${SHIFT}
@@ -42,7 +44,10 @@ DEBPATH=/var/cache/debexec/aptcache
 
 # TODO: call application-specific configuration for installing packages
 
-# revert to the regular user id:
-#exec /REAL_ROOT/"${DIR}"/mapuids "${SHELL}"
-# launch a root shell:
-exec "${SHELL}"
+if [ "${ASROOT}" -eq "0" ]; then
+    # revert to the regular user id:
+    exec /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid "${DEBEXEC_UID}" "${DEBEXEC_GID}" "${SHELL}"
+else
+    # launch a root shell:
+    exec "${SHELL}"
+fi

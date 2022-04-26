@@ -29,14 +29,14 @@ while [ "${SHIFT}" -ne "0" ]; do
 done
 #echo $FAKEROOT
 
-DEBPATH=/REAL_ROOT/var/cache/debexec/aptcache
-#DEBPATH=/REAL_ROOT/var/cache/pbuilder/aptcache
+DEBPATH=/var/cache/debexec/aptcache
 
 . "${DIR}"/config-root.sh
 . /REAL_ROOT/"${DIR}"/config-loader.sh
 . /REAL_ROOT/"${DIR}"/config-tmpbin.sh
 . /REAL_ROOT/"${DIR}"/config-permissions.sh # move ?
 . /REAL_ROOT/"${DIR}"/helper-functions.sh
+. /REAL_ROOT/"${DIR}"/download-packages.sh
 . /REAL_ROOT/"${DIR}"/install-coreutils.sh
 . /REAL_ROOT/"${DIR}"/install-apt.sh
 . /REAL_ROOT/"${DIR}"/config-terminal.sh

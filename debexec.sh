@@ -33,6 +33,7 @@ done
 
 DEBPATH=/var/cache/debexec/aptcache
 
+. "${DIR}"/query-debconf.sh
 . "${DIR}"/config-root.sh
 . /REAL_ROOT/"${DIR}"/config-loader.sh
 . /REAL_ROOT/"${DIR}"/config-tmpbin.sh
@@ -41,6 +42,7 @@ DEBPATH=/var/cache/debexec/aptcache
 . /REAL_ROOT/"${DIR}"/download-packages.sh
 . /REAL_ROOT/"${DIR}"/install-coreutils.sh
 . /REAL_ROOT/"${DIR}"/install-apt.sh
+. /REAL_ROOT/"${DIR}"/config-debconf.sh
 . /REAL_ROOT/"${DIR}"/config-terminal.sh
 #. /REAL_ROOT/"${DIR}"/config-sudo.sh
 

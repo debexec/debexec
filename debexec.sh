@@ -42,7 +42,13 @@ DEBPATH=/var/cache/debexec/aptcache
 . /REAL_ROOT/"${DIR}"/config-terminal.sh
 #. /REAL_ROOT/"${DIR}"/config-sudo.sh
 
-# TODO: call application-specific configuration for installing packages
+# call application-specific configuration for installing packages
+(
+    . /REAL_ROOT/"${DIR}"/load-config.sh
+    if [ "${EXTRAPACKAGES}" != "" ]; then
+        apt install --yes ${EXTRAPACKAGES}
+    fi
+)
 
 # store the user ID and group ID of the user for later use
 mkdir -p /var/cache/debexec

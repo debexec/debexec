@@ -9,7 +9,7 @@ LD_LINUX=$(realpath /REAL_ROOT/lib64/ld-linux-x86-64.so.2)
 # get rid of most of the temporary root system, only keep key files
 FILES=""
 for FILE in $(ls /); do
-    if [ "${FILE}" = "dev" ] || [ "${FILE}" = "proc" ] || [ "${FILE}" = "home" ]; then
+    if [ "${FILE}" = "dev" ] || [ "${FILE}" = "proc" ] || [ "${FILE}" = "home" ] || [ "${FILE}" = "mnt" ] || [ "${FILE}" = "media" ]; then
         continue
     fi
     FILES="${FILES} /${FILE}";

@@ -11,4 +11,4 @@ chmod 755 / /{bin,etc} /usr/bin
 mkdir -p "${DEBPATH}"
 
 # allow DNS resolution to work
-ln -s /REAL_ROOT/etc/resolv.conf /etc/
+ln -s /REAL_ROOT$(realpath /etc/resolv.conf) /etc/resolv.conf

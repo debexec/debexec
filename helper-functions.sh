@@ -204,3 +204,34 @@ install_deps() {
         fi
     fi
 }
+
+realpath() {
+    if [ -L "/REAL_ROOT$1" ]; then
+        TARGET=$(readlink "/REAL_ROOT$1")
+    else
+        echo "$1"
+        return
+    fi
+    if [ "${TARGET:0:1}" = "/" ]; then
+        BASEDIR=''
+    else
+        BASEDIR=$(dirname "$1")
+    fi
+    OLDIFS="${IFS}"
+    IFS='/'
+    for DIR in ${TARGET}; do
+        if [ "${DIR}" = "" ]; then
+            continue
+        fi
+        IFS="${OLDIFS}"
+        DIR_TARGET=$(realpath "${BASEDIR}/${DIR}")
+        if [ "${DIR_TARGET:0:1}" = "/" ]; then
+            BASEDIR="${DIR_TARGET}"
+        else
+            BASEDIR="${BASEDIR}/${DIR_TARGET}"
+        fi
+        IFS='/'
+    done
+    IFS="${OLDIFS}"
+    echo "${BASEDIR}"
+}

@@ -10,8 +10,12 @@ if [ "$1" = "--revertuid" ]; then
 fi
 
 ARGS="$@"
-unshare -Um /bin/sh -c "sleep 1; ${ARGS}" &
+TRIGA=$(mktemp --tmpdir "debexec-trigA.XXXXXXXXXX")
+TRIGB=$(mktemp --tmpdir "debexec-trigB.XXXXXXXXXX")
+mkfifo "${TRIGA}" "${TRIGB}" 2>/dev/null
+unshare -Um /bin/sh -c "echo '' > '${TRIGA}'; cat '${TRIGB}'; rm '${TRIGA}' '${TRIGB}'; ${ARGS}" &
 PID=$!
+cat "${TRIGA}"
 if [ "${REVERTUID}" -eq "1" ]; then
     UIDMAP="${DEBEXEC_UID} 0 1"
     GIDMAP="${DEBEXEC_GID} 0 1"
@@ -20,5 +24,6 @@ else
     GIDMAP="0 $(id -g) 1 1 $(cat /etc/subgid | sed -n "s/$(id -gn):\([^:]*\):\(.*\)/\1 \2/p")"
 fi
 /bin/sh "${DIR}"/config-ids.sh ${USEPROC} "${PID}" "${UIDMAP}" "${GIDMAP}"
+echo "" > "${TRIGB}"
 fg %1
 wait ${PID}

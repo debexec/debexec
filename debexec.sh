@@ -15,6 +15,7 @@ fi
 
 unset TMPDIR # do not use the external temporary directory
 
+NOLAUNCH=0
 ASROOT=0
 SHIFT=1
 while [ "${SHIFT}" -ne "0" ]; do
@@ -23,6 +24,7 @@ while [ "${SHIFT}" -ne "0" ]; do
         --userid) DEBEXEC_UID="$2"; SHIFT=2;;
         --groupid) DEBEXEC_GID="$2"; SHIFT=2;;
         --as-root) ASROOT=1; SHIFT=1;;
+        --no-launch) NOLAUNCH=1; SHIFT=1;;
         *) SHIFT=0;;
     esac
     shift ${SHIFT}
@@ -50,6 +52,12 @@ DEBPATH=/var/cache/debexec/aptcache
     fi
 )
 
+# select application to launch
+DEBEXEC_LAUNCH=$(/bin/sh /REAL_ROOT/"${DIR}"/config-launch.sh)
+if [ "${NOLAUNCH}" -eq "1" ]; then
+    DEBEXEC_LAUNCH="${SHELL}"
+fi
+
 # store the user ID and group ID of the user for later use
 mkdir -p /var/cache/debexec
 echo "${DEBEXEC_UID}" > /var/cache/debexec/uid
@@ -57,8 +65,8 @@ echo "${DEBEXEC_GID}" > /var/cache/debexec/gid
 
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
-    exec /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid "${SHELL}"
+    exec /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid "${DEBEXEC_LAUNCH}"
 else
     # launch a root shell:
-    exec "${SHELL}"
+    exec "${DEBEXEC_LAUNCH}"
 fi

@@ -1,5 +1,7 @@
-mkdir -p /{bin,etc} /usr/bin
-#for PROG in /bin/bash /bin/rm /bin/sed /bin/sleep /bin/sh /bin/tar /usr/bin/dpkg /usr/bin/dpkg-deb /usr/bin/dpkg-query /usr/bin/dpkg-split; do
+# set up critical directories
+mkdir -p /{bin,etc} /usr/bin /run
+ln -s /REAL_ROOT/run/user /run/user # required by dbus
+
 for PROG in /bin/sh; do
     printf '#!%s /REAL_ROOT/bin/sh\nLD_LIBRARY_PATH=/REAL_ROOT/lib/x86_64-linux-gnu:/REAL_ROOT/usr/lib/x86_64-linux-gnu %s /REAL_ROOT%s "$@"' "${LD_LINUX}" "${LD_LINUX}" "${PROG}" > "${PROG}"
     chmod +x "${PROG}"

@@ -17,8 +17,8 @@ unshare -Um /bin/sh -c "echo '' > '${TRIGA}'; cat '${TRIGB}'; rm '${TRIGA}' '${T
 PID=$!
 cat "${TRIGA}"
 if [ "${REVERTUID}" -eq "1" ]; then
-    UIDMAP="${DEBEXEC_UID} 0 1"
-    GIDMAP="${DEBEXEC_GID} 0 1"
+    UIDMAP=$(printf "${DEBEXEC_UID} 0 1\n1 1 999\n0 65535 1\n")
+    GIDMAP=$(printf "${DEBEXEC_GID} 0 1\n1 1 999\n0 65535 1\n")
 else
     UIDMAP="0 $(id -u) 1 1 $(cat /etc/subuid | sed -n "s/$(id -un):\([^:]*\):\(.*\)/\1 \2/p")"
     GIDMAP="0 $(id -g) 1 1 $(cat /etc/subgid | sed -n "s/$(id -gn):\([^:]*\):\(.*\)/\1 \2/p")"

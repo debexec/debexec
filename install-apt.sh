@@ -3,8 +3,11 @@
 install_deps --and-package apt
 
 # configure the apt sources file
-echo "deb [trusted=yes] file:/REAL_ROOT/${DEBPATH} ./" >> /etc/apt/sources.list
-echo "deb [trusted=yes] http://snapshot.debian.org/archive/debian/20200801T030228Z stable main non-free contrib"  >> /etc/apt/sources.list
+(
+    . "${DIR}"/load-config.sh
+    echo "deb [trusted=yes] file:/${DEBPATH} ./" >> /etc/apt/sources.list
+    echo "deb [trusted=yes] ${MIRRORSITE} ${DISTRIBUTION} ${COMPONENTS}"  >> /etc/apt/sources.list
+)
 
 # set a "pin" to prefer the local copy of packages when they are available (TODO not needed?)
 #cat << EOF > /etc/apt/preferences.d/99-prefer-local-packages

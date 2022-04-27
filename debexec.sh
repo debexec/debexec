@@ -67,8 +67,16 @@ echo "${DEBEXEC_GID}" > /var/cache/debexec/gid
 
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
-    exec /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid "${DEBEXEC_LAUNCH}"
+    /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid "${DEBEXEC_LAUNCH}"
 else
     # launch a root shell:
-    exec "${DEBEXEC_LAUNCH}"
+    "${DEBEXEC_LAUNCH}"
 fi
+
+# reset all permissions such that the unprivileged user can clean up the folder
+for FILE in /*; do
+    if [ "$(find_in_list ${FILE} /root /proc /sys /dev /home /mnt /media /REAL_ROOT)" -eq "1" ]; then
+        continue
+    fi
+    chown -R root:root "${FILE}" 2>/dev/null
+done

@@ -1,0 +1,8 @@
+Package: debexec
+Version: @@VERSION@@
+Section: custom
+Priority: optional
+Architecture: amd64
+Essential: no
+Maintainer: Erich E. Hoover <erich.e.hoover@gmail.com>
+Description: Run containerized Debian packages.

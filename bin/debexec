@@ -1,0 +1,68 @@
+#!/bin/sh
+##DEBEXEC##
+
+if [ "$(basename "$0")" = "debexec" ]; then
+    # when calling an application package with debexec the first argument is the package data
+    if [ "$#" -lt "1" ]; then
+        echo "need to specify a package" 1>&2
+        exit 1
+    fi
+    DXE="$1"
+    shift 1
+else
+    # otherwise the calling script "contains" the package data
+    DXE="$0"
+fi
+
+# launch the extraction script with the system-wide debexec (if available)
+SYSDEBEXEC=$(realpath $(which debexec) 2>/dev/null)
+if [ "${SYSDEBEXEC}" != "" ] && [ "${SYSDEBEXEC}" != "$0" ]; then
+    exec "${SYSDEBEXEC}" "$@"
+fi
+
+# check the header to ensure that the file is actually a debexec package
+if [ "$(head -n2 "${DXE}" | tail -n1)" != "##DEBEXEC##" ]; then
+    echo "file '$0' is not a debexec package" 1>&2
+    exit 1
+fi
+
+# strip off this script from the rest of the data and extract the tarball that follows
+OFFSET=$(grep --byte-offset --only-matching --text '##END\-DEBEXEC\-SCRIPT##' "${DXE}" | sed 's/:.*//')
+OFFSET=$((${OFFSET} + 24))
+DEBEXEC_TMP=$(mktemp -d --tmpdir "debexec.XXXXXXXXXX")
+mkdir -p "${DEBEXEC_TMP}"/archive
+tail -c+${OFFSET} "${DXE}" | tar -xz -C "${DEBEXEC_TMP}"
+
+# find the latest debexec code (either system-wide or from the package)
+version_gt() {
+    test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1";
+}
+DEBEXEC_UNPACK=1
+DEBEXEC_DEB=$(ls "${DEBEXEC_TMP}"/debexec_*.deb)
+if [ "${SYSDEBEXEC}" != "" ]; then
+    SYSDIR=$(CDPATH= cd -- "$(dirname -- "${SYSDEBEXEC}")" && pwd)
+    SYSVERSION=$("${SYSDIR}"/../version.sh)
+    DEBVERSION=$(echo "${DEBEXEC_DEB}" | sed 's/^[^_]*_\([^_]*\)_.*/\1/')
+    if version_gt "${SYSVERSION}" "${DEBVERSION}"; then
+        # SYSVERSION > DEBVERSION
+        DEBEXEC_UNPACK=0
+    fi
+fi
+
+# unpack the latest debexec code
+if [ "${DEBEXEC_UNPACK}" -eq "1" ]; then
+    echo "unpack debexec: $DEBEXEC_DEB"
+    ar x --output "${DEBEXEC_TMP}"/archive "${DEBEXEC_DEB}"
+    tar -C "${DEBEXEC_TMP}" --strip-components 4 -xf "${DEBEXEC_TMP}"/archive/data.tar* ./usr/share/debexec
+else
+    cp -a "${SYSDIR}"/.. "${DEBEXEC_TMP}"
+fi
+
+# launch into the latest debexec code (either system-wide or from the package)
+"${DEBEXEC_TMP}"/scripts/debexec.sh "$@"
+
+# clean up the temporary extraction folder
+#rm -rf "${DEBEXEC_TMP}"
+exit 0
+
+##END-DEBEXEC-SCRIPT##

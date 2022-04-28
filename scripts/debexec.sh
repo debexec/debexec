@@ -6,7 +6,7 @@ DEBEXEC_DIR="${DIR}"/../
 if [ "$1" != "--fakeroot" ]; then
 #if [ "$(id -u)" -ne "0" ]; then
     FAKEROOT=$(mktemp -d --tmpdir "fakeroot.XXXXXXXXXX")
-    export DEBEXEC_UIDMAP=1
+    export DEBEXEC_UIDMAP=$(/bin/sh "${DIR}"/use-uidmap.sh)
     /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
     rm -rf "${FAKEROOT}"
     exit 0

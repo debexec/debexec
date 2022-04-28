@@ -1,0 +1,30 @@
+#!/bin/sh
+
+DEBEXECRC="$1"
+DEBEXEC_TMP=$(mktemp -d --tmpdir "debexec-create.XXXXXXXXXX")
+
+DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
+# pull in the current version of debexec
+VERSION=$("${DIR}"/../version.sh)
+# TODO: this won't work in general
+cp "${DIR}"/../debexec_${VERSION}_amd64.deb "${DEBEXEC_TMP}"/debexec_${VERSION}_amd64.deb
+
+# pull in the debexecrc
+cp "${DEBEXECRC}" "${DEBEXEC_TMP}"/debexecrc
+
+# pull in critical debs (--include-coreutils?)
+# TODO
+
+# pull in application debs (--include-debs??)
+# TODO
+
+# build a payload tarball
+(cd "${DEBEXEC_TMP}"; tar -czf ./payload.tgz ./debexecrc ./*.deb)
+
+# build the executable from the launcher script and the payload
+cat "${DIR}"/debexec "${DEBEXEC_TMP}"/payload.tgz > mypackage.dxe
+chmod +x mypackage.dxe
+
+# clean up the temporary folder
+rm -rf "${DEBEXEC_TMP}"

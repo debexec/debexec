@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DEBEXEC_DIR="${DIR}"/../
 
 if [ "$1" != "--fakeroot" ]; then
 #if [ "$(id -u)" -ne "0" ]; then

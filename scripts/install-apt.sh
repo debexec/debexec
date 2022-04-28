@@ -4,7 +4,7 @@ install_deps --and-package apt
 
 # configure the apt sources file
 (
-    . "${DIR}"/load-config.sh
+    . /REAL_ROOT/"${DIR}"/load-config.sh
     echo "deb [trusted=yes] file:/${DEBPATH} ./" >> /etc/apt/sources.list
     echo "deb [trusted=yes] ${MIRRORSITE} ${DISTRIBUTION} ${COMPONENTS}"  >> /etc/apt/sources.list
 )

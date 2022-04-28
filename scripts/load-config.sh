@@ -5,7 +5,6 @@ DISTRIBUTION="unstable"
 COMPONENTS="main non-free contrib"
 MIRRORSITE="http://deb.debian.org/debian" # latest and greatest
 
-DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 if [ -f "${DIR}"/debexecrc ]; then
     . "${DIR}"/debexecrc
 fi

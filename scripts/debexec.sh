@@ -35,6 +35,7 @@ DEBPATH=/var/cache/debexec/aptcache
 
 . "${DIR}"/query-debconf.sh
 . "${DIR}"/config-root.sh
+DEBEXEC_DIR=/REAL_ROOT/"${DEBEXEC_DIR}"
 . /REAL_ROOT/"${DIR}"/config-loader.sh
 . /REAL_ROOT/"${DIR}"/config-tmpbin.sh
 . /REAL_ROOT/"${DIR}"/config-permissions.sh # move ?
@@ -58,7 +59,7 @@ fi
 )
 
 # select application to launch
-DEBEXEC_LAUNCH=$(/bin/sh /REAL_ROOT/"${DIR}"/config-launch.sh)
+DEBEXEC_LAUNCH=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh /REAL_ROOT/"${DIR}"/config-launch.sh)
 if [ "${NOLAUNCH}" -eq "1" ]; then
     DEBEXEC_LAUNCH="${SHELL}"
 fi

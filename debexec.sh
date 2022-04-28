@@ -8,7 +8,7 @@ if [ "$1" != "--fakeroot" ]; then
     #"${DIR}"/mapuids "$0" "${FAKEROOT}"
     #unshare -Urm sh -c "exec \"${DIR}\"/mapuids \"$0\" \"${FAKEROOT}\""
 
-    /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" --userid $(id -u) --groupid $(id -g) "$@"
+    /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
     rm -rf "${FAKEROOT}"
     exit 0
 fi
@@ -21,6 +21,7 @@ SHIFT=1
 while [ "${SHIFT}" -ne "0" ]; do
     case "$1" in
         --fakeroot) FAKEROOT="$2"; SHIFT=2;;
+        --username) DEBEXEC_USER="$2"; SHIFT=2;;
         --userid) DEBEXEC_UID="$2"; SHIFT=2;;
         --groupid) DEBEXEC_GID="$2"; SHIFT=2;;
         --as-root) ASROOT=1; SHIFT=1;;
@@ -44,7 +45,7 @@ DEBPATH=/var/cache/debexec/aptcache
 . /REAL_ROOT/"${DIR}"/install-apt.sh
 . /REAL_ROOT/"${DIR}"/config-debconf.sh
 . /REAL_ROOT/"${DIR}"/config-terminal.sh
-#. /REAL_ROOT/"${DIR}"/config-sudo.sh
+. /REAL_ROOT/"${DIR}"/config-sudo.sh
 
 # call application-specific configuration for installing packages
 (

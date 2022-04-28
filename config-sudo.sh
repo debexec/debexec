@@ -10,12 +10,7 @@ chmod u-w /etc/sudoers
 chown -R 65535:65535 /usr/bin/sudo /etc/sudoers /etc/sudoers.d /usr/lib/sudo /usr/libexec/sudo /etc/sudo.conf 2>/dev/null
 chmod u+s /usr/bin/sudo
 
-# let apt know that we're operating within a sandbox
-echo 'APT::Sandbox::Verify::IDs "false";' > /etc/apt/apt.conf.d/99-sandbox
-
-# hook ownership routines such that common sudo operations will complete successfully
-if [ -f /REAL_ROOT/"${DIR}"/debexec-preload.so ]; then
-    echo /REAL_ROOT/"${DIR}"/debexec-preload.so > /etc/ld.so.preload
+if [ "${DEBEXEC_UIDMAP}" -eq "1" ]; then
+    DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+    . /REAL_ROOT/"${DIR}"/config-preload.sh
 fi
-# how to build:
-#gcc -shared -fPIC hook-preload.c -o hook-preload.so -ldl

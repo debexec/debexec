@@ -5,9 +5,7 @@ DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 if [ "$1" != "--fakeroot" ]; then
 #if [ "$(id -u)" -ne "0" ]; then
     FAKEROOT=$(mktemp -d --tmpdir "fakeroot.XXXXXXXXXX")
-    #"${DIR}"/mapuids "$0" "${FAKEROOT}"
-    #unshare -Urm sh -c "exec \"${DIR}\"/mapuids \"$0\" \"${FAKEROOT}\""
-
+    export DEBEXEC_UIDMAP=1
     /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
     rm -rf "${FAKEROOT}"
     exit 0
@@ -41,6 +39,9 @@ DEBPATH=/var/cache/debexec/aptcache
 . /REAL_ROOT/"${DIR}"/config-permissions.sh # move ?
 . /REAL_ROOT/"${DIR}"/helper-functions.sh
 . /REAL_ROOT/"${DIR}"/download-packages.sh
+if [ "${DEBEXEC_UIDMAP}" -eq "0" ]; then
+    . /REAL_ROOT/"${DIR}"/config-preload.sh
+fi
 . /REAL_ROOT/"${DIR}"/install-coreutils.sh
 . /REAL_ROOT/"${DIR}"/install-apt.sh
 . /REAL_ROOT/"${DIR}"/config-debconf.sh

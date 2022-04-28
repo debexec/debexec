@@ -17,11 +17,21 @@ unshare -Um /bin/sh -c "echo '' > '${TRIGA}'; cat '${TRIGB}'; rm '${TRIGA}' '${T
 PID=$!
 cat "${TRIGA}"
 if [ "${REVERTUID}" -eq "1" ]; then
-    UIDMAP=$(printf "${DEBEXEC_UID} 0 1\n1 1 999\n0 65535 1\n")
-    GIDMAP=$(printf "${DEBEXEC_GID} 0 1\n1 1 999\n0 65535 1\n")
+    UIDMAP=$(printf "${DEBEXEC_UID} 0 1\n")
+    GIDMAP=$(printf "${DEBEXEC_GID} 0 1\n")
+    if [ "${DEBEXEC_UIDMAP}" -eq "1" ]; then
+        UIDMAP="${UIDMAP} 1 1 999\n0 65535 1\n"
+        GIDMAP="${GIDMAP} 1 1 999\n0 65535 1\n"
+    fi
 else
-    UIDMAP="0 $(id -u) 1 1 $(cat /etc/subuid | sed -n "s/$(id -un):\([^:]*\):\(.*\)/\1 \2/p")"
-    GIDMAP="0 $(id -g) 1 1 $(cat /etc/subgid | sed -n "s/$(id -gn):\([^:]*\):\(.*\)/\1 \2/p")"
+    UIDMAP="0 $(id -u) 1"
+    GIDMAP="0 $(id -g) 1"
+    if [ "${DEBEXEC_UIDMAP}" -eq "1" ]; then
+        UIDMAP="${UIDMAP} 1 $(cat /etc/subuid | sed -n "s/$(id -un):\([^:]*\):\(.*\)/\1 \2/p")"
+        GIDMAP="${GIDMAP} 1 $(cat /etc/subgid | sed -n "s/$(id -gn):\([^:]*\):\(.*\)/\1 \2/p")"
+    else
+        USEPROC="--use-proc"
+    fi
 fi
 /bin/sh "${DIR}"/config-ids.sh ${USEPROC} "${PID}" "${UIDMAP}" "${GIDMAP}"
 echo "" > "${TRIGB}"

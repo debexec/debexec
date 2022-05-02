@@ -29,6 +29,20 @@ case "${DEBEXEC_PERSIST}" in
         COMPONENTS="main non-free contrib"
         MIRRORSITE="http://deb.debian.org/debian" # latest and greatest
         ;;
+    # releases by fixed version number
+    debian-[0-9]*.[0-9]*)
+        VERSION=$(echo "$DEBEXEC_PERSIST" | sed 's/^debian-//')
+        MAJOR_VERSION=$(echo "$VERSION" | sed 's/\..*$//')
+        if [ "${MAJOR_VERSION}" -eq "10" ]; then
+            DISTRIBUTION="buster"
+        elif [ "${MAJOR_VERSION}" -eq "11" ]; then
+            DISTRIBUTION="bullseye"
+        else
+            echo "Unknown Debian major version '${VERSION}'!" 1>&2
+        fi
+        COMPONENTS="main non-free contrib"
+        MIRRORSITE=$(/bin/sh "${DEBEXEC_DIR}"/scripts/get-archived-version.sh "${VERSION}")
+        ;;
     # unknown
     debian-*)
         echo "Unsupported persist option '${DEBEXEC_PERSIST}'!" 1>&2

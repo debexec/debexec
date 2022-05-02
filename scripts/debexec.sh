@@ -88,7 +88,8 @@ echo "${DEBEXEC_GID}" > /var/cache/debexec/gid
 
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
-    /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid -- "${DEBEXEC_LAUNCH}"
+    FLAGS=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh /REAL_ROOT/"${DIR}"/launch-flags.sh)
+    /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh ${FLAGS} --revertuid -- "${DEBEXEC_LAUNCH}"
 else
     # launch a root shell:
     "${DEBEXEC_LAUNCH}"

@@ -5,6 +5,10 @@ DEBEXEC_DIR="${DIR}"/../
 
 if [ "$1" != "--fakeroot" ]; then
 #if [ "$(id -u)" -ne "0" ]; then
+    DEBEXEC_PERMISSIONS=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh "${DIR}"/check-permissions.sh)
+    if [ "$?" -ne "0" ]; then
+        exit "$?"
+    fi
     DEBEXEC_PERSIST=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh -c ". \"${DIR}\"/load-config.sh; echo \"\${DEBEXEC_PERSIST}\"")
     if [ "$?" -ne "0" ]; then
         exit "$?"
@@ -88,8 +92,7 @@ echo "${DEBEXEC_GID}" > /var/cache/debexec/gid
 
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
-    FLAGS=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh /REAL_ROOT/"${DIR}"/launch-flags.sh)
-    /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh ${FLAGS} --revertuid -- "${DEBEXEC_LAUNCH}"
+    /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh ${DEBEXEC_PERMISSIONS} --revertuid -- "${DEBEXEC_LAUNCH}"
 else
     # launch a root shell:
     "${DEBEXEC_LAUNCH}"

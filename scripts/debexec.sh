@@ -6,7 +6,9 @@ DEBEXEC_DIR="${DIR}"/../
 if [ "$1" != "--fakeroot" ]; then
 #if [ "$(id -u)" -ne "0" ]; then
     DEBEXEC_PERSIST=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh -c ". \"${DIR}\"/load-config.sh; echo \"\${DEBEXEC_PERSIST}\"")
-    if [ "${DEBEXEC_PERSIST}" = "" ]; then
+    if [ "$?" -ne "0" ]; then
+        exit "$?"
+    elif [ "${DEBEXEC_PERSIST}" = "" ]; then
         FAKEROOT=$(mktemp -d --tmpdir "fakeroot.XXXXXXXXXX")
     else
         FAKEROOT="${HOME}"/.cache/debexec/"${DEBEXEC_PERSIST}"

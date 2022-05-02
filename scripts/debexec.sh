@@ -5,10 +5,18 @@ DEBEXEC_DIR="${DIR}"/../
 
 if [ "$1" != "--fakeroot" ]; then
 #if [ "$(id -u)" -ne "0" ]; then
-    FAKEROOT=$(mktemp -d --tmpdir "fakeroot.XXXXXXXXXX")
+    DEBEXEC_PERSIST=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh -c ". \"${DIR}\"/load-config.sh; echo \"\${DEBEXEC_PERSIST}\"")
+    if [ "${DEBEXEC_PERSIST}" = "" ]; then
+        FAKEROOT=$(mktemp -d --tmpdir "fakeroot.XXXXXXXXXX")
+    else
+        FAKEROOT="${HOME}"/.cache/debexec/"${DEBEXEC_PERSIST}"
+        mkdir -p "${FAKEROOT}"
+    fi
     export DEBEXEC_UIDMAP=$(/bin/sh "${DIR}"/use-uidmap.sh)
     /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
-    rm -rf "${FAKEROOT}"
+    if [ "${DEBEXEC_PERSIST}" = "" ]; then
+        rm -rf "${FAKEROOT}"
+    fi
     exit 0
 fi
 
@@ -32,28 +40,34 @@ done
 #echo $FAKEROOT
 
 DEBPATH=/var/cache/debexec/aptcache
+CONFIGURED=$(cat "${FAKEROOT}"/var/cache/debexec/configured 2>/dev/null)
 
 . "${DIR}"/query-debconf.sh
 . "${DIR}"/config-root.sh
-DEBEXEC_DIR=/REAL_ROOT/"${DEBEXEC_DIR}"
-. /REAL_ROOT/"${DIR}"/config-loader.sh
-. /REAL_ROOT/"${DIR}"/config-tmpbin.sh
-. /REAL_ROOT/"${DIR}"/config-permissions.sh # move ?
 . /REAL_ROOT/"${DIR}"/helper-functions.sh
-. /REAL_ROOT/"${DIR}"/download-packages.sh
+DEBEXEC_DIR=/REAL_ROOT/"${DEBEXEC_DIR}"
+if [ "${CONFIGURED}" = "" ]; then
+    . /REAL_ROOT/"${DIR}"/config-loader.sh
+    . /REAL_ROOT/"${DIR}"/config-tmpbin.sh
+    . /REAL_ROOT/"${DIR}"/config-permissions.sh # move ?
+    . /REAL_ROOT/"${DIR}"/download-packages.sh
+fi
 if [ "${DEBEXEC_UIDMAP}" -eq "0" ]; then
     . /REAL_ROOT/"${DIR}"/config-preload.sh
 fi
-. /REAL_ROOT/"${DIR}"/install-coreutils.sh
-. /REAL_ROOT/"${DIR}"/install-apt.sh
-. /REAL_ROOT/"${DIR}"/config-debconf.sh
-. /REAL_ROOT/"${DIR}"/config-terminal.sh
-. /REAL_ROOT/"${DIR}"/config-sudo.sh
+if [ "${CONFIGURED}" = "" ]; then
+    . /REAL_ROOT/"${DIR}"/install-coreutils.sh
+    . /REAL_ROOT/"${DIR}"/install-apt.sh
+    . /REAL_ROOT/"${DIR}"/config-debconf.sh
+    . /REAL_ROOT/"${DIR}"/config-terminal.sh
+    . /REAL_ROOT/"${DIR}"/config-sudo.sh
+fi
 
 # call application-specific configuration for installing packages
 (
     . /REAL_ROOT/"${DIR}"/load-config.sh
     if [ "${EXTRAPACKAGES}" != "" ]; then
+        apt update
         apt install --yes ${EXTRAPACKAGES}
     fi
 )
@@ -66,6 +80,7 @@ fi
 
 # store the user ID and group ID of the user for later use
 mkdir -p /var/cache/debexec
+echo "1" > /var/cache/debexec/configured
 echo "${DEBEXEC_UID}" > /var/cache/debexec/uid
 echo "${DEBEXEC_GID}" > /var/cache/debexec/gid
 

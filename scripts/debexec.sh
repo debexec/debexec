@@ -15,7 +15,7 @@ if [ "$1" != "--fakeroot" ]; then
         mkdir -p "${FAKEROOT}"
     fi
     export DEBEXEC_UIDMAP=$(/bin/sh "${DIR}"/use-uidmap.sh)
-    /bin/sh -i "${DIR}"/launch-child.sh "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
+    /bin/sh -i "${DIR}"/launch-child.sh --mount -- "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
     if [ "${DEBEXEC_PERSIST}" = "" ]; then
         rm -rf "${FAKEROOT}"
     fi
@@ -88,7 +88,7 @@ echo "${DEBEXEC_GID}" > /var/cache/debexec/gid
 
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
-    /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid "${DEBEXEC_LAUNCH}"
+    /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh --revertuid -- "${DEBEXEC_LAUNCH}"
 else
     # launch a root shell:
     "${DEBEXEC_LAUNCH}"

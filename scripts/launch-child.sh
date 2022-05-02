@@ -1,19 +1,37 @@
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 REVERTUID=0
-if [ "$1" = "--revertuid" ]; then
-    REVERTUID=1
-    USEPROC="--use-proc"
-    DEBEXEC_UID=$(cat /var/cache/debexec/uid)
-    DEBEXEC_GID=$(cat /var/cache/debexec/gid)
-    shift 1
-fi
+FLAGS="--user"
+
+SHIFT=1
+while [ "${SHIFT}" -ne "0" ]; do
+    case "$1" in
+        --revertuid)
+            REVERTUID=1
+            USEPROC="--use-proc"
+            DEBEXEC_UID=$(cat /var/cache/debexec/uid)
+            DEBEXEC_GID=$(cat /var/cache/debexec/gid)
+            SHIFT=1
+            ;;
+        --mount)
+            FLAGS="${FLAGS} $1"
+            SHIFT=1
+            ;;
+        --)
+            SHIFT=1
+            ;;
+        *)
+            SHIFT=0
+            ;;
+    esac
+    shift ${SHIFT}
+done
 
 ARGS="$@"
 TRIGA=$(mktemp --tmpdir "debexec-trigA.XXXXXXXXXX")
 TRIGB=$(mktemp --tmpdir "debexec-trigB.XXXXXXXXXX")
 mkfifo "${TRIGA}" "${TRIGB}" 2>/dev/null
-unshare -Um /bin/sh -c "echo '' > '${TRIGA}'; cat '${TRIGB}'; rm '${TRIGA}' '${TRIGB}'; ${ARGS}" &
+unshare ${FLAGS} /bin/sh -c "echo '' > '${TRIGA}'; cat '${TRIGB}'; rm '${TRIGA}' '${TRIGB}'; ${ARGS}" &
 PID=$!
 cat "${TRIGA}"
 if [ "${REVERTUID}" -eq "1" ]; then

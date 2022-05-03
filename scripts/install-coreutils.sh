@@ -1,3 +1,5 @@
+send_gui "DEBEXEC_INSTALLCORE=1"
+
 # configure minimal dpkg folders and files
 mkdir -p /var/lib/dpkg/{info,updates}
 touch /var/lib/dpkg/status

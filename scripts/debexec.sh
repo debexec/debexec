@@ -3,8 +3,10 @@
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 DEBEXEC_DIR="${DIR}"/../
 
+DEBEXEC_LAUNCH=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh /"${DIR}"/config-launch.sh)
+
 if [ "$1" != "--fakeroot" ]; then
-#if [ "$(id -u)" -ne "0" ]; then
+    . "${DIR}"/launch-gui.sh
     DEBEXEC_PERMISSIONS=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh "${DIR}"/check-permissions.sh)
     if [ "$?" -ne "0" ]; then
         exit "$?"
@@ -23,6 +25,7 @@ if [ "$1" != "--fakeroot" ]; then
     if [ "${DEBEXEC_PERSIST}" = "" ]; then
         rm -rf "${FAKEROOT}"
     fi
+    rm "${DEBEXEC_TOGUI}" "${DEBEXEC_FROMGUI}" 2>/dev/null
     exit 0
 fi
 
@@ -73,13 +76,13 @@ fi
 (
     . /REAL_ROOT/"${DIR}"/load-config.sh
     if [ "${EXTRAPACKAGES}" != "" ]; then
+        send_gui "DEBEXEC_INSTALLAPP=1"
         apt update
         apt install --yes ${EXTRAPACKAGES}
     fi
 )
 
 # select application to launch
-DEBEXEC_LAUNCH=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh /REAL_ROOT/"${DIR}"/config-launch.sh)
 if [ "${NOLAUNCH}" -eq "1" ]; then
     DEBEXEC_LAUNCH="${SHELL}"
 fi
@@ -89,6 +92,12 @@ mkdir -p /var/cache/debexec
 echo "1" > /var/cache/debexec/configured
 echo "${DEBEXEC_UID}" > /var/cache/debexec/uid
 echo "${DEBEXEC_GID}" > /var/cache/debexec/gid
+
+# let the gui know that we're all done
+if [ "${DEBEXEC_GUI}" -eq "1" ]; then
+    printf "DEBEXEC_EXIT=1" > "${DEBEXEC_TOGUI}"
+    cat "${DEBEXEC_FROMGUI}" >/dev/null
+fi
 
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:

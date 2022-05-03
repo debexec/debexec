@@ -132,22 +132,34 @@ download_package() {
     )
 }
 
+send_gui() {
+    if [ "${DEBEXEC_GUI}" -ne "1" ]; then return; fi
+    printf "$1" > "${DEBEXEC_TOGUI}"
+}
+
 download_dependencies() {
     DEBPATH="$1"
     shift 1
     NEW_PACKAGES="$@"
     PACKAGES="${NEW_PACKAGES}"
+    ALL_PACKAGES="${NEW_PACKAGES}"
+    I=0
     while [ "${NEW_PACKAGES}" != "" ]; do
         NEW_PACKAGES=""
         for PACKAGE in ${PACKAGES}; do
+            send_gui "DEBEXEC_DOWNLOADSTEPS=$(echo "${ALL_PACKAGES}" | wc -w)"
+            send_gui "DEBEXEC_DOWNLOADSTEP=${I}"
+            I=$((${I} + 1))
             if [ -f ${DEBPATH}/${PACKAGE}_*.deb ]; then
                 continue
             fi
             echo "Downloading ${PACKAGE}..." 1>&2
+            send_gui "DEBEXEC_DOWNLOAD=${PACKAGE}"
             download_package ${DEBPATH} ${PACKAGE}
             TMP=$(get_deps --search-path 'Depends|Pre-Depends' ${PACKAGE} 2>/dev/null)
             if [ "${TMP}" != "" ]; then
                 NEW_PACKAGES="${NEW_PACKAGES} ${TMP}"
+                ALL_PACKAGES="${ALL_PACKAGES} ${TMP}"
             fi
         done
         PACKAGES="${NEW_PACKAGES}"

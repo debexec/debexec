@@ -1,13 +1,13 @@
 send_gui "DEBEXEC_INSTALLCORE=1"
 
 # configure minimal dpkg folders and files
-mkdir -p /var/lib/dpkg/{info,updates}
+mkdir -p /var/lib/dpkg/info /var/lib/dpkg/updates
 touch /var/lib/dpkg/status
 
 find_pattern() {
     DEBS=""
     for DEB in "$@"; do
-        if [[ -f "${DEBPATH}"/${DEB}_*.deb ]]; then
+        if [ -f "${DEBPATH}"/${DEB}_*.deb ]; then
             DEB=$(cd "${DEBPATH}"; ls ${DEB}_*.deb | sed 's/^\([^_]*\)_.*/\1/')
         fi
         DEBS="${DEBS} ${DEB}"

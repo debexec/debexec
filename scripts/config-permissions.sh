@@ -5,7 +5,7 @@ cp /REAL_ROOT/etc/passwd /REAL_ROOT/etc/group /etc/
 chmod 1777 /tmp
 
 # set the correct toplevel folder permissions to appease sudo (see folders in config-tmpbin.sh)
-chmod 755 / /{bin,etc} /usr/bin
+chmod 755 / /etc /bin /usr/bin
 
 # configure a folder where we can store downloaded packages
 mkdir -p "${DEBPATH}"

@@ -1,5 +1,5 @@
 # set up critical directories
-mkdir -p /{bin,etc} /usr/bin /run
+mkdir -p /etc /bin /usr/bin /run
 ln -s /REAL_ROOT/run/user /run/user # required by dbus
 
 REALSHELL="/REAL_ROOT$(realpath /REAL_ROOT/bin/sh | sed 's/REAL_ROOT//')"

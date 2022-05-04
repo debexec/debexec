@@ -107,10 +107,10 @@ download_package() {
                 SOURCE_PKG=${PACKAGE}
             fi
             
-            if [ "${SOURCE_PKG:0:3}" = "lib" ]; then
-                P=${SOURCE_PKG:0:4}
+            if [ "$(printf %.3s "${SOURCE_PKG}")" = "lib" ]; then
+                P=$(printf %.4s "${SOURCE_PKG}")
             else
-                P=${SOURCE_PKG:0:1}
+                P=$(printf %.1s "${SOURCE_PKG}")
             fi
             if [ "${VERSION}" = "" ]; then
                 continue
@@ -224,7 +224,7 @@ realpath() {
         echo "$1"
         return
     fi
-    if [ "${TARGET:0:1}" = "/" ]; then
+    if [ "$(printf %.1s "${TARGET}")" = "/" ]; then
         BASEDIR=''
     else
         BASEDIR=$(dirname "$1")
@@ -237,7 +237,7 @@ realpath() {
         fi
         IFS="${OLDIFS}"
         DIR_TARGET=$(realpath "${BASEDIR}/${DIR}")
-        if [ "${DIR_TARGET:0:1}" = "/" ]; then
+        if [ "$(printf %.1s "${DIR_TARGET}")" = "/" ]; then
             BASEDIR="${DIR_TARGET}"
         else
             BASEDIR="${BASEDIR}/${DIR_TARGET}"

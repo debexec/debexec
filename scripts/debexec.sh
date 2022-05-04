@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 DEBEXEC_DIR="${DIR}"/../

@@ -110,8 +110,10 @@ class DownloadPage(QWizardPage):
     def isComplete(self):
         return False
 
-def apt_progress(parent):
+def apt_progress(parent, margins=None):
     layout = QVBoxLayout()
+    if margins is not None:
+        layout.setContentsMargins(margins, margins, margins, margins)
     message = parent.upstatus = QLabel()
     layout.addWidget(message)
     progress = parent.upprogress = QProgressBar()
@@ -131,7 +133,12 @@ class InstallCorePage(QWizardPage):
         super().__init__(parent)
         self.setTitle("Installing Core Utilities")
         self.setSubTitle("")
-        layout = apt_progress(self)
+        layout = QVBoxLayout()
+        message = self.custatus = QLabel()
+        layout.addWidget(message)
+        progress = self.cuprogress = QProgressBar()
+        layout.addWidget(progress)
+        layout.addWidget(WrapLayout(apt_progress(self, margins=0)))
         self.setLayout(layout)
     
     def isComplete(self):
@@ -216,8 +223,10 @@ class DebexecWizard(QWizard):
             self.page(self.currentId()).upprogress.setValue(100)
         if status == 'pmstatus':
             self.page(self.currentId()).dlstatus.setText(f'All Files Downloaded.')
-        if status == 'dlstatus' or status == 'pmstatus':
+        if status == 'dlstatus' or status == 'pmstatus' or status == 'custatus':
             mode = status[0:2] if self._mode != 0 else 'up'
+            if mode == 'up' and self.currentId() == PAGE.INSTALLCORE:
+                self.page(self.currentId()).custatus.setText(f'Core Utilities Installed.')
             pkg, percent, description = status_fields
             description = description.replace('\n', '')
             status_widget = getattr(self.page(self.currentId()), f'{mode}status')

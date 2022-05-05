@@ -64,6 +64,7 @@ fi
 if [ "${DEBEXEC_UIDMAP}" -eq "0" ]; then
     . /REAL_ROOT/"${DIR}"/config-preload.sh
 fi
+echo "destatus:-1:0.0000:Installing core utilities..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
 if [ "${CONFIGURED}" = "" ]; then
     . /REAL_ROOT/"${DIR}"/install-coreutils.sh
     . /REAL_ROOT/"${DIR}"/install-apt.sh

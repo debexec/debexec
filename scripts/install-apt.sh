@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo "custatus:9:100.0000:Installing core APT utilities..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
 install_deps --and-package apt
 
 # configure the apt sources file

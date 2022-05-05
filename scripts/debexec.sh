@@ -29,6 +29,11 @@ if [ "$1" != "--fakeroot" ]; then
     exit 0
 fi
 
+# let the gui know our process id
+if [ "${DEBEXEC_GUI}" -eq "1" ]; then
+    printf "DEBEXEC_CHILDPID=$$" > "${DEBEXEC_TOGUI}"
+fi
+
 unset TMPDIR # do not use the external temporary directory
 
 NOLAUNCH=0

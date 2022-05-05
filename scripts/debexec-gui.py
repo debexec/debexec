@@ -2,6 +2,7 @@ from PySide2.QtWidgets import (QWizard, QWizardPage, QApplication, QVBoxLayout, 
 from PySide2.QtCore import (QCoreApplication, Qt, QThread, Signal)
 from enum import (IntEnum, auto)
 from threading import (Lock)
+from signal import (SIGTERM)
 from select import (select)
 
 import sys
@@ -178,7 +179,10 @@ class DebexecWizard(QWizard):
         self.rejected.connect(self._rejected)
     
     def _rejected(self):
-        self.send_msg('DEBEXEC_GUI=0')
+        if 'DEBEXEC_CHILDPID' in globals():
+            os.kill(int(DEBEXEC_CHILDPID), SIGTERM)
+        else:
+            self.send_msg('DEBEXEC_GUI=0')
     
     def validateCurrentPage(self):
         if self.currentId() == PAGE.PERMISSIONS:

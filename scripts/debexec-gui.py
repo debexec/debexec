@@ -9,6 +9,8 @@ import os
 
 class FifoThread(QThread):
     new_msg = Signal(str)
+    _fifo = None
+    
     def __init__(self, fifo):
         super().__init__()
         self._fifo_filename = fifo
@@ -29,7 +31,7 @@ class FifoThread(QThread):
     def quit(self):
         self._quit()
         with self._lock: pass
-        self._fifo.close()
+        if self._fifo is not None: self._fifo.close()
         os.remove(self._fifo_filename)
     
     def run(self):
@@ -173,7 +175,11 @@ class DebexecWizard(QWizard):
         self.setPage(PAGE.INSTALLCORE, InstallCorePage(parent=self))
         self.setPage(PAGE.INSTALLAPP, InstallAppPage(parent=self))
         self.setPage(PAGE.LAUNCHING, LaunchingPage(parent=self))
-
+        self.rejected.connect(self._rejected)
+    
+    def _rejected(self):
+        self.send_msg('DEBEXEC_GUI=0')
+    
     def validateCurrentPage(self):
         if self.currentId() == PAGE.PERMISSIONS:
             ALLOW_ACCESS='yes' if self.field('allow-access') else 'no'
@@ -190,7 +196,7 @@ class DebexecWizard(QWizard):
             globals()[variable] = value
             new_variables.append(variable)
         if 'DEBEXEC_EXIT' in new_variables:
-            self.close()
+            self.accept()
         if 'DEBEXEC_LAUNCH' in new_variables:
             self.setWindowTitle(f'Debian Packaged Executable - {DEBEXEC_LAUNCH}')
             self.send_msg(f'DEBEXEC_GUI=1')

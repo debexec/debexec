@@ -15,7 +15,7 @@ fi
 
 if [ "${DEBEXEC_ACCESS}" != "" ] && [ "${DEBEXEC_GUI}" -eq "1" ]; then
     printf "DEBEXEC_ACCESS=${DEBEXEC_ACCESS}" > "${DEBEXEC_TOGUI}"
-    . "${DEBEXEC_FROMGUI}" # ALLOW_ACCESS=[0|1]
+    . "${DIR}"/read-gui.sh # ALLOW_ACCESS=[0|1]
 elif [ "${DEBEXEC_ACCESS}" != "" ]; then
     echo "This application is requesting permissions to the following system services:" 1>&2
     echo "${DEBEXEC_ACCESS}" 1>&2

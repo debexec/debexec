@@ -5,13 +5,20 @@ all: debexec_$(VERSION)_amd64.deb
 clean:
 	rm -rf debexec
 
-debexec/DEBIAN/control: debian/control.in
+debexec/DEBIAN:
 	mkdir -p debexec/DEBIAN
+	cp -a debian/postinst debian/prerm debexec/DEBIAN
+
+debexec/DEBIAN/control: debian/control.in debexec/DEBIAN
 	cat debian/control.in | sed "s/@@VERSION@@/$(VERSION)/" > debexec/DEBIAN/control
 
 debexec/usr/bin:
 	mkdir -p debexec/usr/bin
 	ln -s /usr/share/debexec/bin/debexec debexec/usr/bin/debexec
+
+debexec/usr/share/binfmts:
+	mkdir -p debexec/usr/share/binfmts/
+	cp -a binfmts/debexec debexec/usr/share/binfmts/debexec
 
 debexec/usr/share/debexec:
 	mkdir -p debexec/usr/share/debexec/
@@ -31,5 +38,5 @@ debexec/usr/share/debexec/scripts:
 	mkdir -p debexec/usr/share/debexec
 	cp -a scripts debexec/usr/share/debexec/
 
-debexec_$(VERSION)_amd64.deb: debexec/DEBIAN/control debexec/usr/share/debexec/version.sh debexec/usr/bin debexec/usr/share/debexec/bin debexec/usr/share/debexec/lib debexec/usr/share/debexec/scripts
+debexec_$(VERSION)_amd64.deb: debexec/DEBIAN/control debexec/usr/share/debexec/version.sh debexec/usr/bin debexec/usr/share/binfmts debexec/usr/share/debexec/bin debexec/usr/share/debexec/lib debexec/usr/share/debexec/scripts
 	dpkg-deb --build debexec debexec_$(VERSION)_amd64.deb

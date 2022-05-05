@@ -1,0 +1,3 @@
+package debexec
+interpreter /usr/bin/debexec
+extension dxe

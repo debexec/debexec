@@ -176,7 +176,12 @@ class DebexecWizard(QWizard):
         self.setPage(PAGE.INSTALLCORE, InstallCorePage(parent=self))
         self.setPage(PAGE.INSTALLAPP, InstallAppPage(parent=self))
         self.setPage(PAGE.LAUNCHING, LaunchingPage(parent=self))
+        self.currentIdChanged.connect(self._idchanged)
         self.rejected.connect(self._rejected)
+    
+    # do not allow the user to ever go back a step
+    def _idchanged(self):
+        self.button(QWizard.BackButton).setEnabled(False)
     
     def _rejected(self):
         if 'DEBEXEC_CHILDPID' in globals():

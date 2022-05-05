@@ -16,8 +16,9 @@ fi
 
 # launch the extraction script with the system-wide debexec (if available)
 SYSDEBEXEC=$(realpath $(which debexec) 2>/dev/null)
-if [ "${SYSDEBEXEC}" != "" ] && [ "${SYSDEBEXEC}" != "$0" ]; then
-    exec "${SYSDEBEXEC}" "$@"
+CALDEBEXEC=$(realpath "$0")
+if [ "${SYSDEBEXEC}" != "" ] && [ "${SYSDEBEXEC}" != "${CALDEBEXEC}" ]; then
+    exec "${SYSDEBEXEC}" "$0" "$@"
 fi
 
 # check the header to ensure that the file is actually a debexec package

@@ -12,3 +12,6 @@ printf "DEBEXEC_LAUNCH=${DEBEXEC_LAUNCH}" > "${DEBEXEC_TOGUI}"
 if [ "${DEBEXEC_GUI}" -eq "0" ]; then
     cat "${DEBEXEC_APTFIFO}" >/dev/null 2>/dev/null &
 fi
+
+# do not ever ask for input from the user
+export DEBIAN_FRONTEND=noninteractive

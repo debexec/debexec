@@ -131,9 +131,7 @@ class InstallCorePage(QWizardPage):
         super().__init__(parent)
         self.setTitle("Installing Core Utilities")
         self.setSubTitle("")
-        layout = QVBoxLayout()
-        message = QLabel('')
-        layout.addWidget(message)
+        layout = apt_progress(self)
         self.setLayout(layout)
     
     def isComplete(self):
@@ -217,14 +215,14 @@ class DebexecWizard(QWizard):
             self.page(self.currentId()).upstatus.setText(f'Database Updates Downloaded.')
             self.page(self.currentId()).upprogress.setValue(100)
         if status == 'pmstatus':
-            self.page(PAGE.INSTALLAPP).dlstatus.setText(f'All Files Downloaded.')
+            self.page(self.currentId()).dlstatus.setText(f'All Files Downloaded.')
         if status == 'dlstatus' or status == 'pmstatus':
             mode = status[0:2] if self._mode != 0 else 'up'
             pkg, percent, description = status_fields
             description = description.replace('\n', '')
-            status_widget = getattr(self.page(PAGE.INSTALLAPP), f'{mode}status')
+            status_widget = getattr(self.page(self.currentId()), f'{mode}status')
             status_widget.setText(f'{description}...')
-            progress_widget = getattr(self.page(PAGE.INSTALLAPP), f'{mode}progress')
+            progress_widget = getattr(self.page(self.currentId()), f'{mode}progress')
             progress_widget.setMaximum(100)
             progress_widget.setValue(float(percent))
 

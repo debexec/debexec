@@ -20,21 +20,19 @@ install_deps --and-package apt
 echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >> /etc/apt/apt.conf.d/99-keep-downloads
 
 # install common utilities that virtually everything will require (and were not already needed)
-apt update
-# * need to be installed first (core dependencies needed by other dependencies)
-apt install --yes \
-    grep \
-;
+echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+apt -o APT::Status-Fd=3 update 3>/REAL_ROOT/${DEBEXEC_APTFIFO}
 # * rest of util-linux unlisted dependencies
-apt install --yes \
+echo "destatus:1:0.0000:Installing pre-dependency packages..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+apt -o APT::Status-Fd=3 install --yes \
     libterm-readline-gnu-perl \
     init-system-helpers \
-;
+3>/REAL_ROOT/${DEBEXEC_APTFIFO};
 # * dependencies are satisfied
-apt install --yes \
+echo "destatus:2:0.0000:Installing packages..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+apt -o APT::Status-Fd=3 install --yes \
     bash \
-    sed \
     apt-utils \
     gzip \
     util-linux \
-;
+3>/REAL_ROOT/${DEBEXEC_APTFIFO};

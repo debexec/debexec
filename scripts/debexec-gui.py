@@ -12,7 +12,6 @@ class FifoThread(QThread):
     def __init__(self, fifo):
         super().__init__()
         self._fifo_filename = fifo
-        self._fifo = open(fifo, 'r')
         self._isRunning = True
         self._lock = Lock()
 
@@ -34,6 +33,7 @@ class FifoThread(QThread):
         os.remove(self._fifo_filename)
     
     def run(self):
+        self._fifo = open(self._fifo_filename, 'r')
         with self._lock:
             while self._isRunning:
                 self._run()
@@ -110,6 +110,22 @@ class DownloadPage(QWizardPage):
     def isComplete(self):
         return False
 
+def apt_progress(parent):
+    layout = QVBoxLayout()
+    message = parent.upstatus = QLabel()
+    layout.addWidget(message)
+    progress = parent.upprogress = QProgressBar()
+    layout.addWidget(progress)
+    message = parent.dlstatus = QLabel()
+    layout.addWidget(message)
+    progress = parent.dlprogress = QProgressBar()
+    layout.addWidget(progress)
+    message = parent.pmstatus = QLabel()
+    layout.addWidget(message)
+    progress = parent.pmprogress = QProgressBar()
+    layout.addWidget(progress)
+    return layout
+
 class InstallCorePage(QWizardPage):
     def __init__(self, parent):
         super().__init__(parent)
@@ -128,9 +144,7 @@ class InstallAppPage(QWizardPage):
         super().__init__(parent)
         self.setTitle("Installing Application Dependencies")
         self.setSubTitle("")
-        layout = QVBoxLayout()
-        message = QLabel('')
-        layout.addWidget(message)
+        layout = apt_progress(self)
         self.setLayout(layout)
     
     def isComplete(self):
@@ -161,7 +175,7 @@ class DebexecWizard(QWizard):
             self.send_msg(f"ALLOW_ACCESS={ALLOW_ACCESS}")
         return True
     
-    def new_msg(self, data):
+    def cli_msg(self, data):
         new_variables = []
         for line in data.split('\n'):
             tmp = line.split('=')
@@ -194,6 +208,25 @@ class DebexecWizard(QWizard):
         if 'DEBEXEC_INSTALLAPP' in new_variables:
             self.setStartId(PAGE.INSTALLAPP)
             self.restart()
+    
+    def apt_msg(self, data):
+        status, *status_fields = data.split(':')
+        if status == 'destatus':
+            self._mode = int(status_fields[0])
+        if status == 'dlstatus':
+            self.page(self.currentId()).upstatus.setText(f'Database Updates Downloaded.')
+            self.page(self.currentId()).upprogress.setValue(100)
+        if status == 'pmstatus':
+            self.page(PAGE.INSTALLAPP).dlstatus.setText(f'All Files Downloaded.')
+        if status == 'dlstatus' or status == 'pmstatus':
+            mode = status[0:2] if self._mode != 0 else 'up'
+            pkg, percent, description = status_fields
+            description = description.replace('\n', '')
+            status_widget = getattr(self.page(PAGE.INSTALLAPP), f'{mode}status')
+            status_widget.setText(f'{description}...')
+            progress_widget = getattr(self.page(PAGE.INSTALLAPP), f'{mode}progress')
+            progress_widget.setMaximum(100)
+            progress_widget.setValue(float(percent))
 
 def _send_msg(_fifo, msg):
     fifo = open(_fifo, 'w')
@@ -206,12 +239,16 @@ def main():
     app = QApplication(sys.argv)
     window = DebexecWizard()
     window.show()
-    fifo_thread = FifoThread(sys.argv[1])
     window.send_msg = lambda msg, _fifo=sys.argv[2]: _send_msg(_fifo, msg)
-    fifo_thread.new_msg.connect(window.new_msg)
-    fifo_thread.start()
+    cli_thread = FifoThread(sys.argv[1])
+    cli_thread.new_msg.connect(window.cli_msg)
+    cli_thread.start()
+    apt_thread = FifoThread(sys.argv[3])
+    apt_thread.new_msg.connect(window.apt_msg)
+    apt_thread.start()
     app.exec_()
-    fifo_thread.quit()
+    cli_thread.quit()
+    apt_thread.quit()
     sys.exit(0)
 
 if __name__ == '__main__':

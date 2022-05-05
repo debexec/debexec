@@ -25,7 +25,7 @@ if [ "$1" != "--fakeroot" ]; then
     if [ "${DEBEXEC_PERSIST}" = "" ]; then
         rm -rf "${FAKEROOT}"
     fi
-    rm "${DEBEXEC_TOGUI}" "${DEBEXEC_FROMGUI}" 2>/dev/null
+    rm "${DEBEXEC_TOGUI}" "${DEBEXEC_FROMGUI}" "${DEBEXEC_APTFIFO}" 2>/dev/null
     exit 0
 fi
 
@@ -77,8 +77,10 @@ fi
     . /REAL_ROOT/"${DIR}"/load-config.sh
     if [ "${EXTRAPACKAGES}" != "" ]; then
         send_gui "DEBEXEC_INSTALLAPP=1"
-        apt update
-        apt install --yes ${EXTRAPACKAGES}
+        echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+        apt -o APT::Status-Fd=3 update 3>/REAL_ROOT/${DEBEXEC_APTFIFO}
+        echo "destatus:1:0.0000:Installing packages..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+        apt -o APT::Status-Fd=3 install --yes ${EXTRAPACKAGES} 3>/REAL_ROOT/${DEBEXEC_APTFIFO}
     fi
 )
 

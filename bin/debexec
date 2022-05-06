@@ -64,7 +64,7 @@ else
 fi
 
 # launch into the latest debexec code (either system-wide or from the package)
-"${DEBEXEC_TMP}"/scripts/debexec.sh "$@"
+DEBEXEC_TMP="${DEBEXEC_TMP}" "${DEBEXEC_TMP}"/scripts/debexec.sh "$@"
 
 # clean up the temporary extraction folder
 #rm -rf "${DEBEXEC_TMP}"

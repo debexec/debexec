@@ -65,6 +65,7 @@ if [ "${CONFIGURED}" = "" ]; then
     . "${DIR}"/config-loader.sh
     . "${DIR}"/config-tmpbin.sh
     . "${DIR}"/config-permissions.sh # move ?
+    . "${DIR}"/config-cache.sh
     . "${DIR}"/download-packages.sh
 fi
 if [ "${DEBEXEC_UIDMAP}" -eq "0" ]; then

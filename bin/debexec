@@ -44,7 +44,11 @@ if [ "${SYSDEBEXEC}" != "" ]; then
     SYSDIR=$(CDPATH= cd -- "$(dirname -- "${SYSDEBEXEC}")" && pwd)
     SYSVERSION=$("${SYSDIR}"/../version.sh)
     DEBVERSION=$(echo "${DEBEXEC_DEB}" | sed 's/^[^_]*_\([^_]*\)_.*/\1/')
-    if version_gt "${SYSVERSION}" "${DEBVERSION}"; then
+    # TODO: provide additional protection for users/administrators while still allowing updates
+    if [ "${SYSVERSION}" = "${DEBVERSION}" ]; then
+        # SYSVERSION == DEBVERSION
+        DEBEXEC_UNPACK=0
+    elif version_gt "${SYSVERSION}" "${DEBVERSION}"; then
         # SYSVERSION > DEBVERSION
         DEBEXEC_UNPACK=0
     fi

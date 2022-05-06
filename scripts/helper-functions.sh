@@ -96,7 +96,7 @@ download_package() {
     DEBPATH="$1"
     PACKAGE="$2"
     (
-        . /REAL_ROOT/"${DIR}"/load-config.sh
+        . "${DIR}"/../scripts/load-config.sh
         found=0
         for COMPONENT in ${COMPONENTS}; do
             PACKAGE_INFO=$(get_package_list "${DEBPATH}" | grep -A10 "^Package: ${PACKAGE}\$")

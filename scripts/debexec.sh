@@ -58,29 +58,30 @@ CONFIGURED=$(cat "${FAKEROOT}"/var/cache/debexec/configured 2>/dev/null)
 
 . "${DIR}"/query-debconf.sh
 . "${DIR}"/config-root.sh
-. /REAL_ROOT/"${DIR}"/helper-functions.sh
+DIR=/REAL_ROOT/"${DIR}"
 DEBEXEC_DIR=/REAL_ROOT/"${DEBEXEC_DIR}"
+. "${DIR}"/helper-functions.sh
 if [ "${CONFIGURED}" = "" ]; then
-    . /REAL_ROOT/"${DIR}"/config-loader.sh
-    . /REAL_ROOT/"${DIR}"/config-tmpbin.sh
-    . /REAL_ROOT/"${DIR}"/config-permissions.sh # move ?
-    . /REAL_ROOT/"${DIR}"/download-packages.sh
+    . "${DIR}"/config-loader.sh
+    . "${DIR}"/config-tmpbin.sh
+    . "${DIR}"/config-permissions.sh # move ?
+    . "${DIR}"/download-packages.sh
 fi
 if [ "${DEBEXEC_UIDMAP}" -eq "0" ]; then
-    . /REAL_ROOT/"${DIR}"/config-preload.sh
+    . "${DIR}"/config-preload.sh
 fi
 echo "destatus:-1:0.0000:Installing core utilities..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
 if [ "${CONFIGURED}" = "" ]; then
-    . /REAL_ROOT/"${DIR}"/install-coreutils.sh
-    . /REAL_ROOT/"${DIR}"/install-apt.sh
-    . /REAL_ROOT/"${DIR}"/config-debconf.sh
-    . /REAL_ROOT/"${DIR}"/config-terminal.sh
-    . /REAL_ROOT/"${DIR}"/config-sudo.sh
+    . "${DIR}"/install-coreutils.sh
+    . "${DIR}"/install-apt.sh
+    . "${DIR}"/config-debconf.sh
+    . "${DIR}"/config-terminal.sh
+    . "${DIR}"/config-sudo.sh
 fi
 
 # call application-specific configuration for installing packages
 (
-    . /REAL_ROOT/"${DIR}"/load-config.sh
+    . "${DIR}"/load-config.sh
     if [ "${EXTRAPACKAGES}" != "" ]; then
         send_gui "DEBEXEC_INSTALLAPP=1"
         echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
@@ -109,7 +110,7 @@ fi
 
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
-    /bin/sh -i /REAL_ROOT/"${DIR}"/launch-child.sh ${DEBEXEC_PERMISSIONS} --revertuid -- "${DEBEXEC_LAUNCH}"
+    /bin/sh -i "${DIR}"/launch-child.sh ${DEBEXEC_PERMISSIONS} --revertuid -- "${DEBEXEC_LAUNCH}"
 else
     # launch a root shell:
     "${DEBEXEC_LAUNCH}"

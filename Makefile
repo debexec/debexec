@@ -7,7 +7,7 @@ clean:
 
 debexec/DEBIAN:
 	mkdir -p debexec/DEBIAN
-	cp -a debian/postinst debian/prerm debexec/DEBIAN
+	cp -a debian/preinst debian/postinst debian/prerm debexec/DEBIAN
 
 debexec/DEBIAN/control: debian/control.in debexec/DEBIAN
 	cat debian/control.in | sed "s/@@VERSION@@/$(VERSION)/" > debexec/DEBIAN/control
@@ -15,6 +15,7 @@ debexec/DEBIAN/control: debian/control.in debexec/DEBIAN
 debexec/usr/bin:
 	mkdir -p debexec/usr/bin
 	ln -s /usr/share/debexec/bin/debexec debexec/usr/bin/debexec
+	ln -s /usr/share/debexec/bin/debexec-create debexec/usr/bin/debexec-create
 
 debexec/usr/share/binfmts:
 	mkdir -p debexec/usr/share/binfmts/

@@ -5,3 +5,8 @@ set -e
 #DEBHELPER#
 
 update-binfmts --unimport debexec
+
+VERSION=$(/usr/share/debexec/version.sh)
+if [ -f /usr/share/debexec/debexec_${VERSION}_${DPKG_MAINTSCRIPT_ARCH}.deb ]; then
+    rm /usr/share/debexec/debexec_${VERSION}_${DPKG_MAINTSCRIPT_ARCH}.deb
+fi

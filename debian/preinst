@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+CALLING_DIR=$(realpath /proc/$(ps -o ppid:1= $$)/cwd)
+DEBIAN_PKG=$(cd "${CALLING_DIR}"; realpath $(xargs -0 -n 1 < /proc/$(ps -o ppid:1= $$)/cmdline | tail -n 1))
+mkdir -p /usr/share/debexec
+cp -a "${DEBIAN_PKG}" /usr/share/debexec

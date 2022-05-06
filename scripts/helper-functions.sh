@@ -82,14 +82,70 @@ get_deps() {
     echo $PACKAGES
 }
 
+download_file() {
+    TMPPATH="$1"
+    URL="$2"
+    DESTINATION="$3"
+    wget -O "${TMPPATH}"/tmp "${URL}" 2>/dev/null || return 1
+    mv "${TMPPATH}"/tmp "${DESTINATION}"
+    return 0
+}
+
+get_release_file() {
+    DEBPATH="$1"
+    RELEASE_PATH=dists/${DISTRIBUTION}/Release
+    if [ ! -f "${DEBPATH}"/${RELEASE_PATH} ]; then
+        mkdir -p $(dirname "${DEBPATH}"/${RELEASE_PATH})
+        download_file "${DEBPATH}" ${MIRRORSITE}/${RELEASE_PATH} "${DEBPATH}"/${RELEASE_PATH}
+        download_file "${DEBPATH}" ${MIRRORSITE}/${RELEASE_PATH}.gpg "${DEBPATH}"/${RELEASE_PATH}.gpg
+        # TODO: the keyring is dependent upon the repository, provide a mechanism to supply the correct one
+        KEYRING=/REAL_ROOT/usr/share/keyrings/debian-archive-keyring.gpg
+        if [ -f "${KEYRING}" ]; then
+            OPTIONS="--keyring ${KEYRING}"
+        fi
+        gpg --no-options ${OPTIONS} \
+            --keyserver keyserver.ubuntu.com --keyserver-options auto-key-retrieve \
+            --verify "${DEBPATH}"/${RELEASE_PATH}.gpg "${DEBPATH}"/${RELEASE_PATH} \
+        || exit 1;
+    fi
+    echo "${DEBPATH}"/${RELEASE_PATH}
+}
+
+validate_packages() {
+    DEBPATH="$1"
+    PACKAGES_FILE="$2"
+    if [ "$(which gpg)" = "" ]; then
+        echo "WARNING: cannot validate repository keys if gpg is not installed!" 1>&2
+        return 0
+    fi
+    RELEASE_FILE=$(get_release_file "${DEBPATH}") || exit 1
+    REPOHASH=$(cat "${RELEASE_FILE}" | grep "${COMPONENT}/binary-${ARCHITECTURE}/Packages.gz" | head -n 1 | cut -d' ' -f2)
+    FILEHASH=$(md5sum "${PACKAGES_FILE}" | cut -d' ' -f1)
+    if [ "${REPOHASH}" != "${FILEHASH}" ]; then
+        exit 1
+    fi
+}
+
 get_package_list() {
     DEBPATH="$1"
-    PACKAGES_PATH=dists/${DISTRIBUTION}/${COMPONENT}/binary-${ARCHITECTURE}/Packages.gz
+    PACKAGES_PATH=dists/${DISTRIBUTION}/${COMPONENT}/binary-${ARCHITECTURE}/Packages
     if [ ! -f "${DEBPATH}"/${PACKAGES_PATH} ]; then
         mkdir -p $(dirname "${DEBPATH}"/${PACKAGES_PATH})
-        wget -O - ${MIRRORSITE}/${PACKAGES_PATH} | gunzip > "${DEBPATH}"/${PACKAGES_PATH}
+        wget -O "${DEBPATH}"/${PACKAGES_PATH}.gz ${MIRRORSITE}/${PACKAGES_PATH}.gz
+        validate_packages "${DEBPATH}" "${DEBPATH}"/${PACKAGES_PATH}.gz # || exit 1
+        gunzip --keep "${DEBPATH}"/${PACKAGES_PATH}.gz
     fi
     cat "${DEBPATH}"/${PACKAGES_PATH}
+}
+
+validate_package() {
+    REPOHASH="$1"
+    PACKAGES_FILE="$2"
+    FILEHASH=$(md5sum "${PACKAGES_FILE}" | cut -d' ' -f1)
+    if [ "${REPOHASH}" != "${FILEHASH}" ]; then
+        echo "Downloaded package does not match repository checksum, aborting." 1>&2
+        exit 1
+    fi
 }
 
 download_package() {
@@ -99,10 +155,11 @@ download_package() {
         . "${DIR}"/../scripts/load-config.sh
         found=0
         for COMPONENT in ${COMPONENTS}; do
-            PACKAGE_INFO=$(get_package_list "${DEBPATH}" | grep -A10 "^Package: ${PACKAGE}\$")
+            PACKAGE_INFO=$(get_package_list "${DEBPATH}" | sed -n "/^Package: ${PACKAGE}\$/,/^\$/{p;/^\$/q}") || exit 1
             VERSION=$(echo "${PACKAGE_INFO}" | sed -n 's/Version: //p')
             ARCHITECTURE=$(echo "${PACKAGE_INFO}" | sed -n 's/Architecture: //p')
             SOURCE_PKG=$(echo "${PACKAGE_INFO}" | sed -n 's/Source: \([^ ]*\).*/\1/p')
+            REPOHASH=$(echo "${PACKAGE_INFO}" | sed -n 's/MD5sum: \([^ ]*\).*/\1/p')
             if [ "${SOURCE_PKG}" = "" ]; then
                 SOURCE_PKG=${PACKAGE}
             fi
@@ -120,9 +177,11 @@ download_package() {
                 found=1
                 break
             fi
-            #echo "${MIRRORSITE}/pool/${COMPONENT}/${P}/${SOURCE_PKG}/${PACKAGE}_${VERSION}_${ARCHITECTURE}.deb"
-            wget -O "${DEBPATH}"/tmp ${MIRRORSITE}/pool/${COMPONENT}/${P}/${SOURCE_PKG}/${PACKAGE}_${VERSION}_${ARCHITECTURE}.deb 2>/dev/null || continue
-            mv "${DEBPATH}"/tmp "${DEBPATH}"/${PACKAGE}_${VERSION}_${ARCHITECTURE}.deb
+            URL="${MIRRORSITE}/pool/${COMPONENT}/${P}/${SOURCE_PKG}/${PACKAGE}_${VERSION}_${ARCHITECTURE}.deb"
+            DESTINATION="${DEBPATH}"/${PACKAGE}_${VERSION}_${ARCHITECTURE}.deb
+            #echo "${URL}"
+            download_file "${DEBPATH}" "${URL}" "${DESTINATION}" || continue
+            validate_package "${REPOHASH}" "${DESTINATION}" || exit 1
             found=1
             break
         done
@@ -130,6 +189,7 @@ download_package() {
             echo "could not find ${PACKAGE}" 1>&2
         fi
     )
+    return 0
 }
 
 send_gui() {
@@ -155,7 +215,7 @@ download_dependencies() {
             fi
             echo "Downloading ${PACKAGE}..." 1>&2
             send_gui "DEBEXEC_DOWNLOAD=${PACKAGE}"
-            download_package ${DEBPATH} ${PACKAGE}
+            download_package ${DEBPATH} ${PACKAGE} || exit 1
             TMP=$(get_deps --search-path 'Depends|Pre-Depends' ${PACKAGE} 2>/dev/null)
             if [ "${TMP}" != "" ]; then
                 NEW_PACKAGES="${NEW_PACKAGES} ${TMP}"

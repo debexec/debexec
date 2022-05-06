@@ -5,4 +5,6 @@ Priority: optional
 Architecture: amd64
 Essential: no
 Maintainer: Erich E. Hoover <erich.e.hoover@gmail.com>
+Depends: debian-archive-keyring,
+         gpg
 Description: Run containerized Debian packages.

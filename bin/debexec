@@ -67,7 +67,7 @@ fi
 DEBEXEC_TMP="${DEBEXEC_TMP}" "${DEBEXEC_TMP}"/scripts/debexec.sh "$@"
 
 # clean up the temporary extraction folder
-#rm -rf "${DEBEXEC_TMP}"
+rm -rf "${DEBEXEC_TMP}"
 exit 0
 
 ##END-DEBEXEC-SCRIPT##

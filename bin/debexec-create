@@ -1,5 +1,16 @@
 #!/bin/sh
 
+INCLUDE_COREUTILS=0
+
+SHIFT=1
+while [ "${SHIFT}" -ne "0" ]; do
+    case "$1" in
+        --include-coreutils) INCLUDE_COREUTILS=1; SHIFT=1;;
+        *) SHIFT=0;;
+    esac
+    shift ${SHIFT}
+done
+
 DEBEXECRC="$1"
 shift 1
 if [ "$(printf %.1s "${DEBEXECRC}")" != "/" ]; then
@@ -7,10 +18,10 @@ if [ "$(printf %.1s "${DEBEXECRC}")" != "/" ]; then
 fi
 . "${DEBEXECRC}"
 if [ ! -z "${DEBEXEC_LAUNCH}" ]; then
-    PACKAGE="${DEBEXEC_LAUNCH}"
+    DEBEXEC_PACKAGE="${DEBEXEC_LAUNCH}"
 fi
 if [ "$#" -ne "0" ]; then
-    PACKAGE="$1"
+    DEBEXEC_PACKAGE="$1"
 fi
 
 DEBEXEC_TMP=$(mktemp -d --tmpdir "debexec-create.XXXXXXXXXX")
@@ -24,8 +35,15 @@ cp "${DIR}"/../debexec_${VERSION}_amd64.deb "${DEBEXEC_TMP}"/debexec_${VERSION}_
 # pull in the debexecrc
 cp "${DEBEXECRC}" "${DEBEXEC_TMP}"/debexecrc
 
-# pull in critical debs (--include-coreutils?)
-# TODO
+# pull in critical debs
+# NOTE: this is the only way to support running on non-Debian systems
+# TODO: change this to the default behavior once this is properly supported
+if [ "${INCLUDE_COREUTILS}" -eq "1" ]; then
+    DEBEXEC_DIR="${DEBEXEC_TMP}"
+    DEBPATH="${DEBEXEC_TMP}"
+    . "${DIR}"/../scripts/helper-functions.sh
+    . "${DIR}"/../scripts/download-packages.sh
+fi
 
 # pull in application debs (--include-debs??)
 # TODO
@@ -34,8 +52,8 @@ cp "${DEBEXECRC}" "${DEBEXEC_TMP}"/debexecrc
 (cd "${DEBEXEC_TMP}"; tar -czf ./payload.tgz ./debexecrc ./*.deb)
 
 # build the executable from the launcher script and the payload
-cat "${DIR}"/debexec "${DEBEXEC_TMP}"/payload.tgz > ${PACKAGE}.dxe
-chmod +x ${PACKAGE}.dxe
+cat "${DIR}"/debexec "${DEBEXEC_TMP}"/payload.tgz > ${DEBEXEC_PACKAGE}.dxe
+chmod +x ${DEBEXEC_PACKAGE}.dxe
 
 # clean up the temporary folder
 rm -rf "${DEBEXEC_TMP}"

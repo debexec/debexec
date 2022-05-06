@@ -134,7 +134,7 @@ download_package() {
 
 send_gui() {
     if [ -z "${DEBEXEC_GUI}" ] || [ "${DEBEXEC_GUI}" -ne "1" ]; then return; fi
-    printf "$1" > "${DEBEXEC_TOGUI}"
+    printf "$1\n" > "${DEBEXEC_TOGUI}"
 }
 
 download_dependencies() {

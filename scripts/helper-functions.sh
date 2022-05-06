@@ -133,7 +133,7 @@ download_package() {
 }
 
 send_gui() {
-    if [ "${DEBEXEC_GUI}" -ne "1" ]; then return; fi
+    if [ -z "${DEBEXEC_GUI}" ] || [ "${DEBEXEC_GUI}" -ne "1" ]; then return; fi
     printf "$1" > "${DEBEXEC_TOGUI}"
 }
 

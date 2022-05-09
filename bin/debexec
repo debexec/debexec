@@ -57,7 +57,7 @@ fi
 # unpack the latest debexec code
 if [ "${DEBEXEC_UNPACK}" -eq "1" ]; then
     echo "unpack debexec: $DEBEXEC_DEB"
-    ar x --output "${DEBEXEC_TMP}"/archive "${DEBEXEC_DEB}"
+    (cd "${DEBEXEC_TMP}"/archive; ar x "${DEBEXEC_DEB}")
     tar -C "${DEBEXEC_TMP}" --strip-components 4 -xf "${DEBEXEC_TMP}"/archive/data.tar* ./usr/share/debexec
 else
     cp -a "${SYSDIR}"/.. "${DEBEXEC_TMP}"

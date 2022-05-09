@@ -60,6 +60,8 @@ CONFIGURED=$(cat "${FAKEROOT}"/var/cache/debexec/configured 2>/dev/null)
 . "${DIR}"/config-root.sh
 DIR=/REAL_ROOT/"${DIR}"
 DEBEXEC_DIR=/REAL_ROOT/"${DEBEXEC_DIR}"
+DEBEXEC_TOGUI=/REAL_ROOT/"${DEBEXEC_TOGUI}"
+DEBEXEC_FROMGUI=/REAL_ROOT/"${DEBEXEC_FROMGUI}"
 . "${DIR}"/helper-functions.sh
 if [ "${CONFIGURED}" = "" ]; then
     . "${DIR}"/config-loader.sh

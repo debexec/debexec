@@ -4,9 +4,9 @@ ln -s /REAL_ROOT/run/user /run/user # required by dbus
 ln -s /REAL_ROOT/usr/bin/dirmngr /usr/bin/dirmngr # required by gpg
 ln -s /REAL_ROOT/usr/bin/gpg-agent /usr/bin/gpg-agent # required by gpg
 
-REALSHELL="/REAL_ROOT$(realpath /REAL_ROOT/bin/sh | sed 's/REAL_ROOT//')"
+REALSHELL="/REAL_ROOT$(realpath /bin/sh)"
 for PROG in /bin/sh; do
-    REALPROG="/REAL_ROOT$(realpath /REAL_ROOT${PROG} | sed 's/REAL_ROOT//')"
+    REALPROG="/REAL_ROOT$(realpath ${PROG})"
     printf '#!%s %s\nLD_LIBRARY_PATH=/REAL_ROOT/lib/x86_64-linux-gnu:/REAL_ROOT/usr/lib/x86_64-linux-gnu %s %s "$@"' "${LD_LINUX}" "${REALSHELL}" "${LD_LINUX}" "${REALPROG}" > "${PROG}"
     chmod +x "${PROG}"
 done

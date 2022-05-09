@@ -1,5 +1,5 @@
-from PySide2.QtWidgets import (QWizard, QWizardPage, QApplication, QVBoxLayout, QHBoxLayout, QLabel, QRadioButton, QWidget, QSpacerItem, QSizePolicy, QProgressBar)
-from PySide2.QtCore import (QCoreApplication, Qt, QThread, Signal)
+from qt.QtWidgets import (QWizard, QWizardPage, QApplication, QVBoxLayout, QHBoxLayout, QLabel, QRadioButton, QWidget, QSpacerItem, QSizePolicy, QProgressBar)
+from qt.QtCore import (QCoreApplication, Qt, QThread, Signal)
 from enum import (IntEnum, auto)
 from threading import (Lock)
 from signal import (SIGTERM)

@@ -11,6 +11,19 @@ if [ "${OTHERMIRROR}" != "" ]; then
     IFS="${OLDIFS}"
 fi
 if [ "${EXTRAPACKAGES}" != "" ]; then
+    ARCHS=$(dpkg --print-architecture; dpkg --print-foreign-architectures)
+    for PKG in ${EXTRAPACKAGES}; do
+        ARCH=$(echo "${PKG}" | sed 's/.*://')
+        if [ -z "${ARCH}" ]; then
+            continue
+        fi
+        found=$(find_in_list ${ARCH} ${ARCHS})
+        if [ "${found}" -eq "1" ]; then
+            continue
+        fi
+        dpkg --add-architecture "${ARCH}"
+        ARCHS=$(dpkg --print-architecture; dpkg --print-foreign-architectures)
+    done
     send_gui "DEBEXEC_INSTALLAPP=1"
     echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
     apt -o APT::Status-Fd=3 update 3>/REAL_ROOT/${DEBEXEC_APTFIFO}

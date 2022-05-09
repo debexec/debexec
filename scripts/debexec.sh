@@ -6,20 +6,7 @@ DEBEXEC_DIR="${DIR}"/../
 DEBEXEC_LAUNCH=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh /"${DIR}"/config-launch.sh)
 
 if [ "$1" != "--fakeroot" ]; then
-    . "${DIR}"/launch-gui.sh
-    DEBEXEC_PERMISSIONS=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh "${DIR}"/check-permissions.sh)
-    if [ "$?" -ne "0" ]; then
-        exit "$?"
-    fi
-    DEBEXEC_PERSIST=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh -c ". \"${DIR}\"/load-config.sh; echo \"\${DEBEXEC_PERSIST}\"")
-    if [ "$?" -ne "0" ]; then
-        exit "$?"
-    elif [ "${DEBEXEC_PERSIST}" = "" ]; then
-        FAKEROOT=$(mktemp -d --tmpdir "fakeroot.XXXXXXXXXX")
-    else
-        FAKEROOT="${HOME}"/.cache/debexec/"${DEBEXEC_PERSIST}"
-        mkdir -p "${FAKEROOT}"
-    fi
+    . "${DIR}"/initial-setup.sh
     export DEBEXEC_UIDMAP=$(/bin/sh "${DIR}"/use-uidmap.sh)
     /bin/sh -i "${DIR}"/launch-child.sh --mount -- "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
     if [ "${DEBEXEC_PERSIST}" = "" ]; then
@@ -84,14 +71,7 @@ fi
 
 # call application-specific configuration for installing packages
 (
-    . "${DIR}"/load-config.sh
-    if [ "${EXTRAPACKAGES}" != "" ]; then
-        send_gui "DEBEXEC_INSTALLAPP=1"
-        echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
-        apt -o APT::Status-Fd=3 update 3>/REAL_ROOT/${DEBEXEC_APTFIFO}
-        echo "destatus:1:0.0000:Installing packages..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
-        apt -o APT::Status-Fd=3 install --yes ${EXTRAPACKAGES} 3>/REAL_ROOT/${DEBEXEC_APTFIFO}
-    fi
+    . "${DIR}"/install-application.sh
 )
 
 # select application to launch

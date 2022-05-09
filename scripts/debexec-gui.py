@@ -55,6 +55,45 @@ class WrapLayout(QWidget):
         super().__init__()
         self.setLayout(layout)
 
+class RepositoriesPage(QWizardPage):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setTitle("Repository Access")
+        self.setSubTitle("")
+        layout = QVBoxLayout()
+        message = QLabel('This application is requesting to install software from the following repositories:')
+        message.setWordWrap(True)
+        layout.addWidget(message)
+        self._repositories = access = QLabel('[]')
+        access.setWordWrap(True)
+        layout.addWidget(access)
+        message = QLabel('Grant access to these repositories?')
+        message.setWordWrap(True)
+        layout.addWidget(message)
+        response = QHBoxLayout()
+        self._response = [None, None]
+        self._response[0] = QRadioButton('No', self)
+        self._response[0].setChecked(True)
+        response.addWidget(self._response[0])
+        self._response[1] = QRadioButton('Yes', self)
+        self.registerField('allow-repository-access', self._response[1])
+        response.addWidget(self._response[1])
+        layout.addWidget(WrapLayout(response))
+        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Expanding))
+        message = QLabel('(Installation will not proceed if access is not granted.)')
+        message.setWordWrap(True)
+        layout.addWidget(message)
+        self.setLayout(layout)
+    
+    def setRepositories(self, repositories):
+        self._repositories.setText(repositories)
+    
+    def isComplete(self):
+        return True
+    
+    def nextId(self):
+        return PAGE.STARTUP
+
 class PermissionsPage(QWizardPage):
     def __init__(self, parent):
         super().__init__(parent)
@@ -160,6 +199,7 @@ class InstallAppPage(QWizardPage):
 
 class PAGE(IntEnum):
     STARTUP = auto()
+    REPOSITORIES = auto()
     PERMISSIONS = auto()
     DOWNLOAD = auto()
     INSTALLCORE = auto()
@@ -171,6 +211,7 @@ class DebexecWizard(QWizard):
         super().__init__()
         i=0
         self.setPage(PAGE.STARTUP, StartupPage(parent=self))
+        self.setPage(PAGE.REPOSITORIES, RepositoriesPage(parent=self))
         self.setPage(PAGE.PERMISSIONS, PermissionsPage(parent=self))
         self.setPage(PAGE.DOWNLOAD, DownloadPage(parent=self))
         self.setPage(PAGE.INSTALLCORE, InstallCorePage(parent=self))
@@ -189,7 +230,14 @@ class DebexecWizard(QWizard):
         else:
             self.send_msg('DEBEXEC_GUI=0')
     
+    def close(self):
+        QCoreApplication.quit()
+    
     def validateCurrentPage(self):
+        if self.currentId() == PAGE.REPOSITORIES:
+            ALLOW_ACCESS='yes' if self.field('allow-repository-access') else 'no'
+            self.send_msg(f"ALLOW_ACCESS={ALLOW_ACCESS}")
+            if ALLOW_ACCESS != 'yes': self.close()
         if self.currentId() == PAGE.PERMISSIONS:
             ALLOW_ACCESS='yes' if self.field('allow-access') else 'no'
             self.send_msg(f"ALLOW_ACCESS={ALLOW_ACCESS}")
@@ -209,6 +257,10 @@ class DebexecWizard(QWizard):
         if 'DEBEXEC_LAUNCH' in new_variables:
             self.setWindowTitle(f'Debian Packaged Executable - {DEBEXEC_LAUNCH}')
             self.send_msg(f'DEBEXEC_GUI=1')
+        if 'DEBEXEC_REPOSITORIES' in new_variables:
+            self.page(PAGE.REPOSITORIES).setRepositories(DEBEXEC_REPOSITORIES)
+            self.setStartId(PAGE.REPOSITORIES)
+            self.restart()
         if 'DEBEXEC_ACCESS' in new_variables:
             self.page(PAGE.PERMISSIONS).setAccess(DEBEXEC_ACCESS)
             self.setStartId(PAGE.PERMISSIONS)

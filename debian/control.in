@@ -7,4 +7,5 @@ Essential: no
 Maintainer: Erich E. Hoover <erich.e.hoover@gmail.com>
 Depends: debian-archive-keyring,
          gpg
+Recommends: newuidmap
 Description: Run containerized Debian packages.

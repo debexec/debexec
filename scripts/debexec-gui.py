@@ -198,7 +198,7 @@ class DebexecWizard(QWizard):
     def cli_msg(self, data):
         new_variables = []
         for line in data.split('\n'):
-            tmp = line.split('=')
+            tmp = line.split('=', 1)
             if len(tmp) != 2: continue
             variable = tmp[0]
             value = tmp[1]

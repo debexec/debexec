@@ -47,6 +47,9 @@ debexec/usr/share/debexec/version.sh: debexec/usr/share/debexec
 debexec/usr/share/debexec/bin: debexec/usr/share/debexec
 	cp -a bin debexec/usr/share/debexec/
 
+src/debexec-preload.so:
+	DEBEXEC_UIDMAP=1 ./scripts/debexec.sh
+
 debexec/usr/share/debexec/lib: src/debexec-preload.so
 	mkdir -p debexec/usr/share/debexec/lib
 	cp -a src/debexec-preload.so debexec/usr/share/debexec/lib/

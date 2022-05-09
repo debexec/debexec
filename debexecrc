@@ -1,0 +1,4 @@
+ARCHITECTURE="amd64"
+EXTRAPACKAGES="gcc-7 make"
+DEBEXEC_LAUNCH="/bin/sh -c 'cd src; make CC=gcc-7'"
+DEBEXEC_PERSIST="debian-buster"

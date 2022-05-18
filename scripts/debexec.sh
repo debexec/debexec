@@ -94,6 +94,11 @@ if [ "${DEBEXEC_GUI}" -eq "1" ]; then
     cat "${DEBEXEC_FROMGUI}" >/dev/null
 fi
 
+# drop access to folders outside the container (unless explicitly specified)
+OLDPWD="${PWD}"
+umount -l /REAL_ROOT
+cd "${OLDPWD}" 2>/dev/null || cd / 
+
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
     /bin/sh -i "${DIR}"/launch-child.sh ${DEBEXEC_PERMISSIONS} --revertuid -- "${DEBEXEC_LAUNCH}"

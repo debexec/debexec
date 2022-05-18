@@ -16,7 +16,7 @@ pivot_root "${FAKEROOT}" "${FAKEROOT}/REAL_ROOT"
 LD_LINUX=$(realpath /REAL_ROOT/lib64/ld-linux-x86-64.so.2)
 
 # "which" is required very early by some scripts
-rm /tmp
+rm /tmp 2>/dev/null
 mkdir -p /tmp/bin/
 ln -s $(realpath $(which which)) /tmp/bin/which 2>/dev/null
 

@@ -31,19 +31,6 @@ is_installed() {
     dpkg -l "$1" 2>/dev/null | grep "^ii" >/dev/null
 }
 
-find_in_list() {
-    ITEM="$1"
-    shift 1
-    found=0
-    for ENTRY in $@; do
-        if [ "${ENTRY}" = "${ITEM}" ]; then
-            found=1
-            break
-        fi
-    done
-    echo $found
-}
-
 get_deps() {
     SEARCH_PATH=""
     if [ "$1" = "--search-path" ]; then

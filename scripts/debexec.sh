@@ -42,7 +42,9 @@ done
 
 DEBPATH=/var/cache/debexec/aptcache
 CONFIGURED=$(cat "${FAKEROOT}"/var/cache/debexec/configured 2>/dev/null)
+SPECIAL_DIRS="dev proc sys run home mnt media"
 
+. "${DIR}"/helper-functions-early.sh
 . "${DIR}"/query-debconf.sh
 . "${DIR}"/config-root.sh
 DIR=/REAL_ROOT/"${DIR}"
@@ -100,9 +102,9 @@ else
 fi
 
 # reset all permissions such that the unprivileged user can clean up the folder
-for FILE in /*; do
-    if [ "$(find_in_list ${FILE} /root /proc /sys /dev /home /mnt /media /REAL_ROOT)" -eq "1" ]; then
+for FILE in $(ls /); do
+    if [ "$(find_in_list ${FILE} ${SPECIAL_DIRS} root REAL_ROOT)" -eq "1" ]; then
         continue
     fi
-    chown -R root:root "${FILE}" 2>/dev/null
+    chown -R root:root "/${FILE}" 2>/dev/null
 done

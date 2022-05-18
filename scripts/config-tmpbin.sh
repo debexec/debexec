@@ -1,6 +1,5 @@
 # set up critical directories
 mkdir -p /etc /bin /usr/bin /run
-ln -s /REAL_ROOT/run/user /run/user # required by dbus
 ln -s /REAL_ROOT/usr/bin/dirmngr /usr/bin/dirmngr # required by gpg
 ln -s /REAL_ROOT/usr/bin/gpg-agent /usr/bin/gpg-agent # required by gpg
 

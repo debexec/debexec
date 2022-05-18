@@ -1,10 +1,12 @@
 #!/bin/sh
 
 INCLUDE_COREUTILS=0
+GPGKEY=
 
 SHIFT=1
 while [ "${SHIFT}" -ne "0" ]; do
     case "$1" in
+        --gpgkey) GPGKEY="$2"; SHIFT=2;;
         --include-coreutils) INCLUDE_COREUTILS=1; SHIFT=1;;
         *) SHIFT=0;;
     esac
@@ -34,6 +36,10 @@ cp "${DIR}"/../debexec_${VERSION}_amd64.deb "${DEBEXEC_TMP}"/debexec_${VERSION}_
 
 # pull in the debexecrc
 cp "${DEBEXECRC}" "${DEBEXEC_TMP}"/debexecrc
+if [ ! -z "${GPGKEY}" ]; then
+    cat "${GPGKEY}"  | gpg --dearmor >> "${DEBEXEC_TMP}"/keyring.gpg
+    ADDFILES="${ADDFILES} ./keyring.gpg"
+fi
 
 # pull in critical debs
 # NOTE: this is the only way to support running on non-Debian systems
@@ -49,7 +55,7 @@ fi
 # TODO
 
 # build a payload tarball
-(cd "${DEBEXEC_TMP}"; tar -czf ./payload.tgz ./debexecrc ./*.deb)
+(cd "${DEBEXEC_TMP}"; tar -czf ./payload.tgz ./debexecrc ${ADDFILES} ./*.deb)
 
 # build the executable from the launcher script and the payload
 cat "${DIR}"/debexec "${DEBEXEC_TMP}"/payload.tgz > ${DEBEXEC_PACKAGE}.dxe

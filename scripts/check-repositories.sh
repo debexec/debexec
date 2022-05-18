@@ -4,6 +4,7 @@ DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 DEBEXEC_REPOSITORIES=""
 if [ ! -z "${OTHERMIRROR}" ]; then
+    OTHERMIRROR=$(export TMP="${DEBEXEC_DIR}"; export DEBEXEC_DIR="\${DEBEXEC_DIR}"; . "${TMP}"/debexecrc; echo "${OTHERMIRROR}")
     OLDIFS="${IFS}"
     IFS='|'
     for MIRROR in ${OTHERMIRROR}; do

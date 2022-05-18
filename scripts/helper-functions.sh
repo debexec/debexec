@@ -85,11 +85,11 @@ get_release_file() {
         mkdir -p $(dirname "${DEBPATH}"/${RELEASE_PATH})
         download_file "${DEBPATH}" ${MIRRORSITE}/${RELEASE_PATH} "${DEBPATH}"/${RELEASE_PATH}
         download_file "${DEBPATH}" ${MIRRORSITE}/${RELEASE_PATH}.gpg "${DEBPATH}"/${RELEASE_PATH}.gpg
-        # TODO: the keyring is dependent upon the repository, provide a mechanism to supply the correct one
-        KEYRING=/REAL_ROOT/usr/share/keyrings/debian-archive-keyring.gpg
-        if [ -f "${KEYRING}" ]; then
-            OPTIONS="--keyring ${KEYRING}"
-        fi
+        for KEYRING in ${APTKEYRINGS}; do
+            if [ -f "/REAL_ROOT/${KEYRING}" ]; then
+                OPTIONS="${OPTIONS} --keyring /REAL_ROOT/${KEYRING}"
+            fi
+        done
         gpg --no-options ${OPTIONS} \
             --keyserver keyserver.ubuntu.com --keyserver-options auto-key-retrieve \
             --verify "${DEBPATH}"/${RELEASE_PATH}.gpg "${DEBPATH}"/${RELEASE_PATH} \

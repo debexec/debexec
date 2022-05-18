@@ -19,18 +19,21 @@ case "${DEBEXEC_PERSIST}" in
         ;;
     # rolling development versions
     debian-experimental|debian-unstable|debian-testing)
+        APTKEYRINGS="${APTKEYRINGS} /usr/share/keyrings/debian-archive-keyring.gpg"
         DISTRIBUTION=$(echo "$DEBEXEC_PERSIST" | sed 's/^debian-//')
         COMPONENTS="main non-free contrib"
         MIRRORSITE="http://deb.debian.org/debian" # latest and greatest
         ;;
     # releases by codename
     debian-buster|debian-bullseye|debian-bookworm)
+        APTKEYRINGS="${APTKEYRINGS} /usr/share/keyrings/debian-archive-keyring.gpg"
         DISTRIBUTION=$(echo "$DEBEXEC_PERSIST" | sed 's/^debian-//')
         COMPONENTS="main non-free contrib"
         MIRRORSITE="http://deb.debian.org/debian" # latest and greatest
         ;;
     # releases by fixed version number
     debian-[0-9]*.[0-9]*)
+        APTKEYRINGS="${APTKEYRINGS} /usr/share/keyrings/debian-archive-keyring.gpg"
         VERSION=$(echo "$DEBEXEC_PERSIST" | sed 's/^debian-//')
         MAJOR_VERSION=$(echo "$VERSION" | sed 's/\..*$//')
         if [ "${MAJOR_VERSION}" -eq "10" ]; then

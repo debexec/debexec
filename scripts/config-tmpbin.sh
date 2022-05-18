@@ -1,5 +1,6 @@
 # set up critical directories
 mkdir -p /etc /bin /usr/bin /run
+mkdir -p /home/${DEBEXEC_USER}/.gnupg # required by gpg
 ln -s /REAL_ROOT/usr/bin/dirmngr /usr/bin/dirmngr # required by gpg
 ln -s /REAL_ROOT/usr/bin/gpg-agent /usr/bin/gpg-agent # required by gpg
 

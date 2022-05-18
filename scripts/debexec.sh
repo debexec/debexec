@@ -40,11 +40,12 @@ while [ "${SHIFT}" -ne "0" ]; do
 done
 #echo $FAKEROOT
 
+. "${DIR}"/helper-functions-early.sh
+
 DEBPATH=/var/cache/debexec/aptcache
 CONFIGURED=$(cat "${FAKEROOT}"/var/cache/debexec/configured 2>/dev/null)
-SPECIAL_DIRS="dev proc sys run home mnt media"
+SPECIAL_DIRS=$(. "${DIR}"/config-dirs.sh)
 
-. "${DIR}"/helper-functions-early.sh
 . "${DIR}"/query-debconf.sh
 . "${DIR}"/config-root.sh
 DIR=/REAL_ROOT/"${DIR}"

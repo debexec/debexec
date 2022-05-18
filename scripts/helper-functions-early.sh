@@ -10,3 +10,14 @@ find_in_list() {
     done
     echo $found
 }
+
+is_set() {
+    VALUE="$1"
+    if [ -z "${VALUE}" ]; then
+        return 1
+    fi
+    if [ "${VALUE}" != "yes" ]; then
+        return 1
+    fi
+    return 0
+}

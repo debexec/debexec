@@ -5,6 +5,7 @@ if [ "${CONFIGURED}" = "" ]; then
 else
     rm "${FAKEROOT}"/etc/ld.so.preload 2>/dev/null
 fi
+rm "${FAKEROOT}"/run 2>/dev/null
 mount --bind "${FAKEROOT}" "${FAKEROOT}"
 for FILE in ${SPECIAL_DIRS}; do
     rm "${FAKEROOT}/${FILE}" 2>/dev/null

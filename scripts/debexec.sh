@@ -107,6 +107,11 @@ else
     "${DEBEXEC_LAUNCH}"
 fi
 
+# unmount all the bind mounts (do not try to change permissions on the rest of the system)
+for MOUNTPT in ${SPECIAL_DIRS}; do
+    umount -l "/${MOUNTPT}" 2>/dev/null
+done
+
 # reset all permissions such that the unprivileged user can clean up the folder
 for FILE in $(ls /); do
     if [ "$(find_in_list ${FILE} ${SPECIAL_DIRS} root REAL_ROOT)" -eq "1" ]; then

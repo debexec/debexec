@@ -35,5 +35,6 @@ apt -o APT::Status-Fd=3 install --yes \
     bash \
     apt-utils \
     gzip \
+    mount \
     util-linux \
 3>/REAL_ROOT/${DEBEXEC_APTFIFO};

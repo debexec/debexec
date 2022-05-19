@@ -1,0 +1,5 @@
+/.icon-cache
+/debexec/
+/debexec_*_amd64.deb
+/src/debexec-preload.so
+__pycache__

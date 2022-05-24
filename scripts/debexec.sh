@@ -8,7 +8,7 @@ DEBEXEC_LAUNCH=$(DEBEXEC_DIR="${DEBEXEC_DIR}" /bin/sh /"${DIR}"/config-launch.sh
 if [ "$1" != "--fakeroot" ]; then
     . "${DIR}"/initial-setup.sh
     export DEBEXEC_UIDMAP=$(/bin/sh "${DIR}"/use-uidmap.sh)
-    /bin/sh -i "${DIR}"/launch-child.sh --mount -- "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
+    /bin/sh -m "${DIR}"/launch-child.sh --mount -- "$0" --fakeroot "${FAKEROOT}" --username $(id -un) --userid $(id -u) --userid $(id -u) --groupid $(id -g) "$@"
     if [ "${DEBEXEC_PERSIST}" = "" ]; then
         rm -rf "${FAKEROOT}"
     fi
@@ -101,7 +101,7 @@ cd "${OLDPWD}" 2>/dev/null || cd /
 
 if [ "${ASROOT}" -eq "0" ]; then
     # revert to the regular user id:
-    /bin/sh -i "${DIR}"/launch-child.sh ${DEBEXEC_PERMISSIONS} --revertuid -- "${DEBEXEC_LAUNCH}"
+    /bin/sh -m "${DIR}"/launch-child.sh ${DEBEXEC_PERMISSIONS} --revertuid -- "${DEBEXEC_LAUNCH}"
 else
     # launch a root shell:
     "${DEBEXEC_LAUNCH}"

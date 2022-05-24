@@ -46,7 +46,7 @@ else
     GIDMAP="0 $(id -g) 1"
     if [ "${DEBEXEC_UIDMAP}" -eq "1" ]; then
         UIDMAP="${UIDMAP} 1 $(cat /etc/subuid | sed -n "s/$(id -un):\([^:]*\):\(.*\)/\1 \2/p")"
-        GIDMAP="${GIDMAP} 1 $(cat /etc/subgid | sed -n "s/$(id -gn):\([^:]*\):\(.*\)/\1 \2/p")"
+        GIDMAP="${GIDMAP} 1 $(cat /etc/subgid | sed -n "s/$(id -un):\([^:]*\):\(.*\)/\1 \2/p")"
     else
         USEPROC="--use-proc"
     fi

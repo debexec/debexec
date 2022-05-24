@@ -66,7 +66,7 @@ def main(args, SRC, DEST):
     def inkscape_render_rect(icon_file, rect, dpi, output_file):
         cmd = [
             "inkscape",
-            "--batch-process",
+            "--without-gui",
             "--export-dpi={}".format(str(dpi)),
             "-i",
             rect,

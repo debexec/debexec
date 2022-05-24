@@ -115,6 +115,7 @@ validate_packages() {
 
 get_package_list() {
     DEBPATH="$1"
+    PACKAGE="$2"
     PACKAGES_PATH=dists/${DISTRIBUTION}/${COMPONENT}/binary-${ARCHITECTURE}/Packages
     if [ ! -f "${DEBPATH}"/${PACKAGES_PATH} ]; then
         mkdir -p $(dirname "${DEBPATH}"/${PACKAGES_PATH})
@@ -122,7 +123,7 @@ get_package_list() {
         validate_packages "${DEBPATH}" "${DEBPATH}"/${PACKAGES_PATH}.gz # || exit 1
         gunzip --keep "${DEBPATH}"/${PACKAGES_PATH}.gz
     fi
-    cat "${DEBPATH}"/${PACKAGES_PATH}
+    sed -n "/^Package: ${PACKAGE}\$/,/^\$/{p;/^\$/q}" "${DEBPATH}"/${PACKAGES_PATH}
 }
 
 validate_package() {
@@ -142,7 +143,7 @@ download_package() {
         . "${DIR}"/../scripts/load-config.sh
         found=0
         for COMPONENT in ${COMPONENTS}; do
-            PACKAGE_INFO=$(get_package_list "${DEBPATH}" | sed -n "/^Package: ${PACKAGE}\$/,/^\$/{p;/^\$/q}") || exit 1
+            PACKAGE_INFO=$(get_package_list "${DEBPATH}" "${PACKAGE}") || exit 1
             VERSION=$(echo "${PACKAGE_INFO}" | sed -n 's/Version: //p')
             ARCHITECTURE=$(echo "${PACKAGE_INFO}" | sed -n 's/Architecture: //p')
             SOURCE_PKG=$(echo "${PACKAGE_INFO}" | sed -n 's/Source: \([^ ]*\).*/\1/p')

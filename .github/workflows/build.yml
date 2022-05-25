@@ -12,3 +12,36 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           path: debexec_*.deb
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get version
+        id: version
+        run: echo "::set-output name=version::$(./version.sh)"
+      - name: Create release
+        uses: actions/create-release@v1
+        id: create-release
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          release_name: ${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: ./
+      - name: Upload Debian package
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./debexec_${{ steps.version.outputs.version }}_amd64.deb
+          asset_name: debexec_${{ steps.version.outputs.version }}_amd64.deb
+          asset_content_type: application/vnd.debian.binary-package

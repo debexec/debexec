@@ -59,4 +59,4 @@ debexec/usr/share/debexec/scripts:
 	cp -a scripts debexec/usr/share/debexec/
 
 debexec_$(VERSION)_amd64.deb: debexec/DEBIAN/control debexec/usr/share/debexec/version.sh debexec/usr/bin debexec/usr/share/binfmts debexec/usr/share/mime/packages/debexec.xml debexec/usr/share/applications/debexec.desktop debexec/usr/share/icons debexec/usr/share/debexec/bin debexec/usr/share/debexec/lib debexec/usr/share/debexec/scripts
-	dpkg-deb -Zxz --build debexec debexec_$(VERSION)_amd64.deb
+	dpkg-deb -Zxz --root-owner-group --build debexec debexec_$(VERSION)_amd64.deb

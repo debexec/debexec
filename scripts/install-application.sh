@@ -10,9 +10,6 @@ if [ "${OTHERMIRROR}" != "" ]; then
     IFS="${OLDIFS}"
 fi
 if [ "${EXTRAPACKAGES}" != "" ]; then
-    if [ -f "${DEBEXEC_DIR}"/keyring.gpg ]; then
-        cp "${DEBEXEC_DIR}"/keyring.gpg /etc/apt/trusted.gpg.d/debexec-${DEBEXEC_LAUNCH}.gpg
-    fi
     ARCHS=$(dpkg --print-architecture; dpkg --print-foreign-architectures)
     for PKG in ${EXTRAPACKAGES}; do
         ARCH=$(echo "${PKG}" | sed 's/.*\(:\|$\)//')

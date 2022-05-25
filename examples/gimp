@@ -1,0 +1,4 @@
+EXTRAPACKAGES="gimp"
+DEBEXEC_LAUNCH="gimp"
+DEBEXEC_PERSIST="debian-unstable"
+DEBEXEC_USEDISK="yes"

@@ -1,0 +1,4 @@
+EXTRAPACKAGES="inkscape"
+DEBEXEC_LAUNCH="inkscape"
+DEBEXEC_PERSIST="debian-unstable"
+DEBEXEC_USEDISK="yes"

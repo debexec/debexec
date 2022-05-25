@@ -73,5 +73,17 @@ debexec/usr/share/debexec/scripts:
 	mkdir -p debexec/usr/share/debexec
 	cp -a scripts debexec/usr/share/debexec/
 
-debexec_$(VERSION)_amd64.deb: debexec/DEBIAN/control debexec/usr/share/debexec/version.sh debexec/usr/bin debexec/usr/share/binfmts debexec/usr/share/mime/packages/debexec.xml debexec/usr/share/applications/debexec.desktop debexec/usr/share/icons debexec/usr/share/debexec/bin debexec/usr/share/debexec/lib debexec/usr/share/debexec/scripts
-	dpkg-deb -Zxz --root-owner-group --build debexec debexec_$(VERSION)_amd64.deb
+debexec_$(VERSION)_amd64-unsigned.deb: debexec/DEBIAN/control debexec/usr/share/debexec/version.sh debexec/usr/bin debexec/usr/share/binfmts debexec/usr/share/mime/packages/debexec.xml debexec/usr/share/applications/debexec.desktop debexec/usr/share/icons debexec/usr/share/debexec/bin debexec/usr/share/debexec/lib debexec/usr/share/debexec/scripts
+	dpkg-deb -Zxz --root-owner-group --build debexec debexec_$(VERSION)_amd64-unsigned.deb
+
+.gnupg:
+	mkdir -p .gnupg
+	chmod 700 .gnupg
+	echo "$${PRIVATE_KEY}" | gpg --batch --no-options --homedir=$(PWD)/.gnupg --import 2>/dev/null || true
+
+# add a debsigs-compatible signature to the package
+debexec_$(VERSION)_amd64.deb: debexec_$(VERSION)_amd64-unsigned.deb .gnupg
+	$(eval SIGNATURE=$(shell cat debexec_$(VERSION)_amd64-unsigned.deb | gpg --openpgp --homedir=$(PWD)/.gnupg --detach-sign 2>/dev/null > signature.dat && echo "header.dat signature.dat" || true))
+	@echo "_gpgorigin      0           0     0     644     $$(printf "%-10s" $$(wc -c < signature.dat || true))\`" > header.dat
+	@cat debexec_$(VERSION)_amd64-unsigned.deb $(SIGNATURE) > debexec_$(VERSION)_amd64.deb
+	@rm header.dat signature.dat || true

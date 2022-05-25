@@ -44,7 +44,21 @@ if [ "${SYSDEBEXEC}" != "" ]; then
     SYSDIR=$(CDPATH= cd -- "$(dirname -- "${SYSDEBEXEC}")" && pwd)
     SYSVERSION=$("${SYSDIR}"/../version.sh)
     DEBVERSION=$(echo "${DEBEXEC_DEB}" | sed 's/^[^_]*_\([^_]*\)_.*/\1/')
-    # TODO: provide additional protection for users/administrators while still allowing updates
+    # verify that the package was signed with the debexec private key
+    ar p "${DEBEXEC_DEB}" _gpgorigin > "${DEBEXEC_TMP}"/debexec.sig
+    SIZE=$(wc -c < "${DEBEXEC_TMP}"/debexec.sig)
+    if [ "${SIZE}" -ne "0" ]; then
+        OFFSET=$(grep --byte-offset --only-matching --text '_gpgorigin' "${DEBEXEC_DEB}" | sed 's/:.*//')
+        head -c+${OFFSET} "${DEBEXEC_DEB}" | gpg --batch --no-default-keyring \
+            --keyring "${SYSDIR}"/../debexec.gpg --trust-model always \
+            --verify "${DEBEXEC_TMP}"/debexec.sig -
+        SIG_ERR=$?
+    else
+        SIG_ERR=1
+    fi
+    if [ "${SIG_ERR}" -ne "0" ]; then
+        DEBEXEC_UNPACK=0
+    fi
     if [ "${SYSVERSION}" = "${DEBVERSION}" ]; then
         # SYSVERSION == DEBVERSION
         DEBEXEC_UNPACK=0

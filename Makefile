@@ -59,6 +59,9 @@ debexec/usr/share/debexec/version.sh: debexec/usr/share/debexec
 	echo "printf '%s' '$(VERSION)'" > debexec/usr/share/debexec/version.sh
 	chmod +x debexec/usr/share/debexec/version.sh
 
+debexec/usr/share/debexec/debexec.gpg: debexec/usr/share/debexec
+	cp debexec.gpg debexec/usr/share/debexec/debexec.gpg
+
 debexec/usr/share/debexec/bin: debexec/usr/share/debexec
 	cp -a bin debexec/usr/share/debexec/
 
@@ -73,7 +76,7 @@ debexec/usr/share/debexec/scripts:
 	mkdir -p debexec/usr/share/debexec
 	cp -a scripts debexec/usr/share/debexec/
 
-debexec_$(VERSION)_amd64-unsigned.deb: debexec/DEBIAN/control debexec/usr/share/debexec/version.sh debexec/usr/bin debexec/usr/share/binfmts debexec/usr/share/mime/packages/debexec.xml debexec/usr/share/applications/debexec.desktop debexec/usr/share/icons debexec/usr/share/debexec/bin debexec/usr/share/debexec/lib debexec/usr/share/debexec/scripts
+debexec_$(VERSION)_amd64-unsigned.deb: debexec/DEBIAN/control debexec/usr/share/debexec/version.sh debexec/usr/share/debexec/debexec.gpg debexec/usr/bin debexec/usr/share/binfmts debexec/usr/share/mime/packages/debexec.xml debexec/usr/share/applications/debexec.desktop debexec/usr/share/icons debexec/usr/share/debexec/bin debexec/usr/share/debexec/lib debexec/usr/share/debexec/scripts
 	dpkg-deb -Zxz --root-owner-group --build debexec debexec_$(VERSION)_amd64-unsigned.deb
 
 .gnupg:

@@ -1,9 +1,15 @@
 VERSION=$(shell ./version.sh)
 
+.PHONY: examples
+
 all: debexec_$(VERSION)_amd64.deb
 
 clean:
 	rm -rf debexec
+
+examples:
+	./bin/debexec-create examples/gimp
+	./bin/debexec-create examples/inkscape
 
 debexec/DEBIAN:
 	mkdir -p debexec/DEBIAN

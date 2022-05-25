@@ -9,9 +9,13 @@ jobs:
         run: sudo apt-get install -y inkscape
       - name: Build project
         run: make
+      - name: Build examples
+        run: make examples
       - uses: actions/upload-artifact@v3
         with:
-          path: debexec_*.deb
+          path: |
+            debexec_*.deb
+            *.dxe
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -45,3 +49,21 @@ jobs:
           asset_path: ./debexec_${{ steps.version.outputs.version }}_amd64.deb
           asset_name: debexec_${{ steps.version.outputs.version }}_amd64.deb
           asset_content_type: application/vnd.debian.binary-package
+      - name: Upload gimp example
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./gimp.dxe
+          asset_name: gimp.dxe
+          asset_content_type: application/x-debian-executable
+      - name: Upload inkscape example
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./inkscape.dxe
+          asset_name: inkscape.dxe
+          asset_content_type: application/x-debian-executable

@@ -7,9 +7,16 @@ all: debexec_$(VERSION)_amd64.deb
 clean:
 	rm -rf debexec
 
-examples:
+.keys:
+	mkdir -p .keys
+
+.keys/pubkey_5E3C45D7B312C643.gpg: .keys
+	wget -O .keys/pubkey_5E3C45D7B312C643.gpg https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg
+
+examples: .keys/pubkey_5E3C45D7B312C643.gpg
 	./bin/debexec-create examples/gimp
 	./bin/debexec-create examples/inkscape
+	./bin/debexec-create --gpgkey .keys/pubkey_5E3C45D7B312C643.gpg examples/spotify
 
 debexec/DEBIAN:
 	mkdir -p debexec/DEBIAN

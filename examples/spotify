@@ -1,0 +1,5 @@
+OTHERMIRROR="deb [signed-by=${DEBEXEC_DIR}/keyring.gpg] http://repository.spotify.com stable non-free"
+EXTRAPACKAGES="spotify-client"
+DEBEXEC_LAUNCH="spotify"
+DEBEXEC_PERSIST="debian-unstable"
+USENETWORK=yes

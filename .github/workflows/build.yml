@@ -67,3 +67,12 @@ jobs:
           asset_path: ./inkscape.dxe
           asset_name: inkscape.dxe
           asset_content_type: application/x-debian-executable
+      - name: Upload spotify example
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./spotify.dxe
+          asset_name: spotify.dxe
+          asset_content_type: application/x-debian-executable

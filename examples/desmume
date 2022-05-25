@@ -1,0 +1,3 @@
+EXTRAPACKAGES="desmume"
+DEBEXEC_LAUNCH="desmume"
+DEBEXEC_PERSIST="debian-unstable"

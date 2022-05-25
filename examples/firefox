@@ -1,0 +1,4 @@
+EXTRAPACKAGES="firefox chrome-gnome-shell"
+DEBEXEC_LAUNCH="firefox"
+DEBEXEC_PERSIST="debian-unstable"
+DEBEXEC_USEDISK="yes"

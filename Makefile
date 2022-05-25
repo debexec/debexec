@@ -14,6 +14,7 @@ clean:
 	wget -O .keys/pubkey_5E3C45D7B312C643.gpg https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg
 
 examples: .keys/pubkey_5E3C45D7B312C643.gpg
+	./bin/debexec-create examples/firefox
 	./bin/debexec-create examples/gimp
 	./bin/debexec-create examples/inkscape
 	./bin/debexec-create --gpgkey .keys/pubkey_5E3C45D7B312C643.gpg examples/spotify

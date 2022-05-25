@@ -70,7 +70,7 @@ def main(args, SRC, DEST):
             "--export-dpi={}".format(str(dpi)),
             "-i",
             rect,
-            "--export-filename={}".format(output_file),
+            "--export-png={}".format(output_file),
             icon_file,
         ]
         ret = subprocess.run(cmd, capture_output=True)

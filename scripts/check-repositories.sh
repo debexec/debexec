@@ -9,7 +9,6 @@ if [ ! -z "${OTHERMIRROR}" ]; then
     IFS='|'
     for MIRROR in ${OTHERMIRROR}; do
         MIRRORNAME=$(echo "${MIRROR}" | sed 's/deb \(\[.*\] \|\)//' | sed -e 's|^.*://||' -e 's|/|_|g' -e 's| |_|g')
-        echo $MIRRORNAME 1>&2
         if [ ! -f "${HOME}"/.cache/debexec/"${DEBEXEC_PERSIST}"/etc/apt/sources.list.d/${MIRRORNAME}.list ]; then
             DEBEXEC_REPOSITORIES="${DEBEXEC_REPOSITORIES} $(printf '%s\n' ${MIRROR})"
         fi

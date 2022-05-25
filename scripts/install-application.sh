@@ -5,7 +5,6 @@ if [ "${OTHERMIRROR}" != "" ]; then
     IFS='|'
     for MIRROR in ${OTHERMIRROR}; do
         MIRRORNAME=$(echo "${MIRROR}" | sed 's/deb \(\[.*\] \|\)//' | sed -e 's|^.*://||' -e 's|/|_|g' -e 's| |_|g')
-        echo "MIRRORNAME: $MIRRORNAME" 1>&2
         echo "${MIRROR}" > /etc/apt/sources.list.d/${MIRRORNAME}.list
     done
     IFS="${OLDIFS}"
@@ -16,7 +15,7 @@ if [ "${EXTRAPACKAGES}" != "" ]; then
     fi
     ARCHS=$(dpkg --print-architecture; dpkg --print-foreign-architectures)
     for PKG in ${EXTRAPACKAGES}; do
-        ARCH=$(echo "${PKG}" | sed 's/.*://')
+        ARCH=$(echo "${PKG}" | sed 's/.*\(:\|$\)//')
         if [ -z "${ARCH}" ]; then
             continue
         fi

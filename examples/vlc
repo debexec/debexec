@@ -1,0 +1,4 @@
+EXTRAPACKAGES="vlc"
+DEBEXEC_LAUNCH="vlc"
+DEBEXEC_PERSIST="debian-unstable"
+DEBEXEC_USEDISK="yes"

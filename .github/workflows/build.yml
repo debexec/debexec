@@ -60,6 +60,15 @@ jobs:
           asset_path: ./desmume.dxe
           asset_name: desmume.dxe
           asset_content_type: application/x-debian-executable
+      - name: Upload discord example
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./discord.dxe
+          asset_name: discord.dxe
+          asset_content_type: application/x-debian-executable
       - name: Upload firefox example
         uses: actions/upload-release-asset@v1
         env:

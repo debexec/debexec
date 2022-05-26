@@ -1,0 +1,4 @@
+DEBEXEC_EXTRADEBS="https://discord.com/api/download?platform=linux&format=deb"
+DEBEXEC_LAUNCH="discord"
+DEBEXEC_PERSIST="debian-unstable"
+USENETWORK=yes

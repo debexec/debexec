@@ -15,6 +15,7 @@ clean:
 
 examples: .keys/pubkey_5E3C45D7B312C643.gpg
 	./bin/debexec-create examples/desmume
+	./bin/debexec-create examples/discord
 	./bin/debexec-create examples/firefox
 	./bin/debexec-create examples/gimp
 	./bin/debexec-create examples/inkscape

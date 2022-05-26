@@ -51,6 +51,15 @@ jobs:
           asset_path: ./debexec_${{ steps.version.outputs.version }}_amd64.deb
           asset_name: debexec_${{ steps.version.outputs.version }}_amd64.deb
           asset_content_type: application/vnd.debian.binary-package
+      - name: Upload Debian package (unversioned)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./debexec_${{ steps.version.outputs.version }}_amd64.deb
+          asset_name: debexec_amd64.deb
+          asset_content_type: application/vnd.debian.binary-package
       - name: Upload desmume example
         uses: actions/upload-release-asset@v1
         env:

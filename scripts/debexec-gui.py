@@ -12,11 +12,12 @@ class FifoThread(QThread):
     new_msg = Signal(str)
     _fifo = None
     
-    def __init__(self, fifo):
+    def __init__(self, fifo, mode='r'):
         super().__init__()
         self._fifo_filename = fifo
         self._isRunning = True
         self._lock = Lock()
+        self._mode = mode
 
     def _run(self):
         fifo, _, _ = select([self._fifo],[],[self._fifo])
@@ -36,7 +37,7 @@ class FifoThread(QThread):
         os.remove(self._fifo_filename)
     
     def run(self):
-        self._fifo = open(self._fifo_filename, 'r')
+        self._fifo = open(self._fifo_filename, self._mode)
         with self._lock:
             while self._isRunning:
                 self._run()

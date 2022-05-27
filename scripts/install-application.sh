@@ -27,7 +27,7 @@ fi
 if [ "${EXTRAPACKAGES}" != "" ] || [ "${DEBEXEC_EXTRADEBS}" != "" ]; then
     ARCHS=$(dpkg --print-architecture; dpkg --print-foreign-architectures)
     for PKG in ${EXTRAPACKAGES}; do
-        ARCH=$(echo "${PKG}" | sed 's/.*\(:\|$\)//')
+        ARCH=$(echo "${PKG}" | sed 's/[^:]*\(:\|$\)//')
         if [ -z "${ARCH}" ]; then
             continue
         fi

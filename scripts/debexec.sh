@@ -12,7 +12,7 @@ if [ "$1" != "--fakeroot" ]; then
     if [ "${DEBEXEC_PERSIST}" = "" ]; then
         rm -rf "${FAKEROOT}"
     fi
-    rm "${DEBEXEC_TOGUI}" "${DEBEXEC_FROMGUI}" "${DEBEXEC_APTFIFO}" 2>/dev/null
+    rm "${DEBEXEC_TOGUI}" "${DEBEXEC_FROMGUI}" "${DEBEXEC_APTSTATUS}" 2>/dev/null
     exit 0
 fi
 
@@ -63,7 +63,7 @@ fi
 if [ "${DEBEXEC_UIDMAP}" -eq "0" ]; then
     . "${DIR}"/config-preload.sh
 fi
-echo "destatus:-1:0.0000:Installing core utilities..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+echo "destatus:-1:0.0000:Installing core utilities..." >/REAL_ROOT/${DEBEXEC_APTSTATUS}
 if [ "${CONFIGURED}" = "" ]; then
     . "${DIR}"/install-coreutils.sh
     . "${DIR}"/install-apt.sh

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "custatus:9:100.0000:Installing core APT utilities..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+echo "custatus:9:100.0000:Installing core APT utilities..." >/REAL_ROOT/${DEBEXEC_APTSTATUS}
 install_deps --and-package apt
 
 # configure the apt sources file
@@ -21,16 +21,16 @@ install_deps --and-package apt
 echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >> /etc/apt/apt.conf.d/99-keep-downloads
 
 # install common utilities that virtually everything will require (and were not already needed)
-echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
-apt -o APT::Status-Fd=3 update 3>/REAL_ROOT/${DEBEXEC_APTFIFO}
+echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTSTATUS}
+apt -o APT::Status-Fd=3 update 3>/REAL_ROOT/${DEBEXEC_APTSTATUS}
 # * rest of util-linux unlisted dependencies
-echo "destatus:1:0.0000:Installing pre-dependency packages..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+echo "destatus:1:0.0000:Installing pre-dependency packages..." >/REAL_ROOT/${DEBEXEC_APTSTATUS}
 apt -o APT::Status-Fd=3 install --yes \
     libterm-readline-gnu-perl \
     init-system-helpers \
-3>/REAL_ROOT/${DEBEXEC_APTFIFO};
+3>/REAL_ROOT/${DEBEXEC_APTSTATUS};
 # * dependencies are satisfied
-echo "destatus:2:0.0000:Installing packages..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
+echo "destatus:2:0.0000:Installing packages..." >/REAL_ROOT/${DEBEXEC_APTSTATUS}
 apt -o APT::Status-Fd=3 install --yes \
     bash \
     apt-utils \
@@ -38,4 +38,4 @@ apt -o APT::Status-Fd=3 install --yes \
     mount \
     util-linux \
     wget \
-3>/REAL_ROOT/${DEBEXEC_APTFIFO};
+3>/REAL_ROOT/${DEBEXEC_APTSTATUS};

@@ -18,18 +18,30 @@ case "${DEBEXEC_PERSIST}" in
         exit 1
         ;;
     # rolling development versions
-    debian-experimental|debian-unstable|debian-testing)
+    debian-unstable|debian-testing)
         APTKEYRINGS="${APTKEYRINGS} /usr/share/keyrings/debian-archive-keyring.gpg"
         DISTRIBUTION=$(echo "$DEBEXEC_PERSIST" | sed 's/^debian-//')
         COMPONENTS="main non-free contrib"
-        MIRRORSITE="http://deb.debian.org/debian" # latest and greatest
+        MIRRORSITE="http://deb.debian.org/debian"
+        ;;
+    # unstable + additions
+    debian-experimental)
+        APTKEYRINGS="${APTKEYRINGS} /usr/share/keyrings/debian-archive-keyring.gpg"
+        DISTRIBUTION=unstable
+        COMPONENTS="main non-free contrib"
+        MIRRORSITE="http://deb.debian.org/debian"
+        DEBEXEC_TARGET=experimental
+        if [ ! -z "${OTHERMIRROR}" ]; then
+            OTHERMIRROR="${OTHERMIRROR}|"
+        fi
+        OTHERMIRROR="${OTHERMIRROR}deb http://deb.debian.org/debian experimental main"
         ;;
     # releases by codename
     debian-buster|debian-bullseye|debian-bookworm)
         APTKEYRINGS="${APTKEYRINGS} /usr/share/keyrings/debian-archive-keyring.gpg"
         DISTRIBUTION=$(echo "$DEBEXEC_PERSIST" | sed 's/^debian-//')
         COMPONENTS="main non-free contrib"
-        MIRRORSITE="http://deb.debian.org/debian" # latest and greatest
+        MIRRORSITE="http://deb.debian.org/debian"
         ;;
     # releases by fixed version number
     debian-[0-9]*.[0-9]*)

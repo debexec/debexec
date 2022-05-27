@@ -42,5 +42,11 @@ if [ "${EXTRAPACKAGES}" != "" ] || [ "${DEBEXEC_EXTRADEBS}" != "" ]; then
     echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
     apt -o APT::Status-Fd=3 update 3>/REAL_ROOT/${DEBEXEC_APTFIFO}
     echo "destatus:1:0.0000:Installing packages..." >/REAL_ROOT/${DEBEXEC_APTFIFO}
-    apt -o APT::Status-Fd=3 install --yes ${EXTRAPACKAGES} ${DEBEXEC_EXTRADEBS} 3>/REAL_ROOT/${DEBEXEC_APTFIFO}
+    if [ ! -z "${DEBEXEC_TARGET}" ]; then
+        APT_OPTIONS="${APT_OPTIONS} -t ${DEBEXEC_TARGET}"
+    fi
+    apt -o APT::Status-Fd=3 \
+        ${APT_OPTIONS} \
+        install --yes ${EXTRAPACKAGES} ${DEBEXEC_EXTRADEBS} \
+    3>/REAL_ROOT/${DEBEXEC_APTFIFO}
 fi

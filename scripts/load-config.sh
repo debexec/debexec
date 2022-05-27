@@ -25,16 +25,25 @@ case "${DEBEXEC_PERSIST}" in
         MIRRORSITE="http://deb.debian.org/debian"
         ;;
     # unstable + additions
-    debian-experimental)
+    debian-experimental|debian-fresh-releases)
         APTKEYRINGS="${APTKEYRINGS} /usr/share/keyrings/debian-archive-keyring.gpg"
         DISTRIBUTION=unstable
         COMPONENTS="main non-free contrib"
         MIRRORSITE="http://deb.debian.org/debian"
-        DEBEXEC_TARGET=experimental
+        DEBEXEC_TARGET=$(echo "${DEBEXEC_PERSIST}" | sed 's/^debian-//')
         if [ ! -z "${OTHERMIRROR}" ]; then
             OTHERMIRROR="${OTHERMIRROR}|"
         fi
-        OTHERMIRROR="${OTHERMIRROR}deb http://deb.debian.org/debian experimental main"
+        case "${DEBEXEC_TARGET}" in
+            experimental)
+                OTHERMIRROR="${OTHERMIRROR}deb http://deb.debian.org/debian experimental main"
+                ;;
+            fresh-releases)
+                wget -nc -O /usr/share/keyrings/debian-janitor-archive-keyring.gpg https://janitor.debian.net/archive-keyring.gpg 2>/dev/null || true
+                OTHERMIRROR="${OTHERMIRROR}deb [arch=amd64 signed-by=/usr/share/keyrings/debian-janitor-archive-keyring.gpg] https://janitor.debian.net/ fresh-snapshots main"
+                OTHERMIRROR="${OTHERMIRROR}|deb [arch=amd64 signed-by=/usr/share/keyrings/debian-janitor-archive-keyring.gpg] https://janitor.debian.net/ fresh-releases main"
+                ;;
+        esac
         ;;
     # releases by codename
     debian-buster|debian-bullseye|debian-bookworm)

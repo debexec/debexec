@@ -42,11 +42,20 @@ if [ "${EXTRAPACKAGES}" != "" ] || [ "${DEBEXEC_EXTRADEBS}" != "" ]; then
     echo "destatus:0:0.0000:Updating apt package list..." >/REAL_ROOT/${DEBEXEC_APTSTATUS}
     apt -o APT::Status-Fd=3 update 3>/REAL_ROOT/${DEBEXEC_APTSTATUS}
     echo "destatus:1:0.0000:Installing packages..." >/REAL_ROOT/${DEBEXEC_APTSTATUS}
+    if [ "${DEBEXEC_GUI}" -eq "1" ]; then
+        APT_OPTIONS="${APT_OPTIONS} -o APT::Status-Fd=3 -o APT::Keep-Fds::=4 -o APT::Keep-Fds::=5"
+        export DEBIAN_FRONTEND=passthrough
+        #export DEBCONF_DEBUG=developer
+        export DEBCONF_READFD=4
+        export DEBCONF_WRITEFD=5
+        export DEBIAN_PRIORITY="high"
+    else
+        export DEBIAN_FRONTEND=readline
+    fi
     if [ ! -z "${DEBEXEC_TARGET}" ]; then
         APT_OPTIONS="${APT_OPTIONS} -t ${DEBEXEC_TARGET}"
     fi
-    apt -o APT::Status-Fd=3 \
-        ${APT_OPTIONS} \
+    apt ${APT_OPTIONS} \
         install --yes ${EXTRAPACKAGES} ${DEBEXEC_EXTRADEBS} \
-    3>/REAL_ROOT/${DEBEXEC_APTSTATUS}
+    3>/REAL_ROOT/${DEBEXEC_APTSTATUS} 4</REAL_ROOT/${DEBEXEC_APTREAD} 5>/REAL_ROOT/${DEBEXEC_APTWRITE}
 fi

@@ -302,6 +302,10 @@ class DebexecWizard(QWizard):
             progress_widget = getattr(self.page(self.currentId()), f'{mode}progress')
             progress_widget.setMaximum(100)
             progress_widget.setValue(float(percent))
+    
+    def debconf_msg(self, data):
+        # TODO: implement debconf passthrough protocol, this behaves the same as the 'noninteractive' backend
+        return '0 \n'
 
 def _send_msg(_fifo, msg):
     fifo = open(_fifo, 'w')
@@ -321,9 +325,16 @@ def main():
     apt_thread = FifoThread(sys.argv[3])
     apt_thread.new_msg.connect(window.apt_msg)
     apt_thread.start()
+    debconf_reply_thread = FifoThread(sys.argv[4], mode='w') # hold the FIFO open the entire time we run
+    debconf_reply_thread.start()
+    debconf_thread = FifoThread(sys.argv[5])
+    debconf_thread.new_msg.connect(lambda msg, _fifo=sys.argv[4]: _send_msg(_fifo, window.debconf_msg(msg)))
+    debconf_thread.start()
     app.exec_()
     cli_thread.quit()
     apt_thread.quit()
+    debconf_thread.quit()
+    debconf_reply_thread.quit()
     sys.exit(0)
 
 if __name__ == '__main__':

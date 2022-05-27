@@ -12,7 +12,7 @@ if [ "$1" != "--fakeroot" ]; then
     if [ "${DEBEXEC_PERSIST}" = "" ]; then
         rm -rf "${FAKEROOT}"
     fi
-    rm "${DEBEXEC_TOGUI}" "${DEBEXEC_FROMGUI}" "${DEBEXEC_APTSTATUS}" 2>/dev/null
+    rm "${DEBEXEC_TOGUI}" "${DEBEXEC_FROMGUI}" "${DEBEXEC_APTSTATUS}" "${DEBEXEC_APTREAD}" "${DEBEXEC_APTWRITE}" 2>/dev/null
     exit 0
 fi
 

@@ -86,7 +86,7 @@ class RepositoriesPage(QWizardPage):
         self.setLayout(layout)
     
     def setRepositories(self, repositories):
-        self._repositories.setText(repositories)
+        self._repositories.setText(repositories.replace('|', '\n'))
     
     def isComplete(self):
         return True

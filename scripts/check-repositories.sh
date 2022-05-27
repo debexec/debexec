@@ -10,7 +10,11 @@ if [ ! -z "${OTHERMIRROR}" ]; then
     for MIRROR in ${OTHERMIRROR}; do
         MIRRORNAME=$(echo "${MIRROR}" | sed 's/deb \(\[.*\] \|\)//' | sed -e 's|^.*://||' -e 's|/|_|g' -e 's| |_|g')
         if [ ! -f "${HOME}"/.cache/debexec/"${DEBEXEC_PERSIST}"/etc/apt/sources.list.d/${MIRRORNAME}.list ]; then
-            DEBEXEC_REPOSITORIES="${DEBEXEC_REPOSITORIES} $(printf '%s\n' ${MIRROR})"
+            MIRRORURL=$(echo "${MIRROR}" | sed 's/deb \(\[.*\] \|\)//')
+            if [ ! -z "${DEBEXEC_REPOSITORIES}" ]; then
+                DEBEXEC_REPOSITORIES="${DEBEXEC_REPOSITORIES}|"
+            fi
+            DEBEXEC_REPOSITORIES="${DEBEXEC_REPOSITORIES}${MIRRORURL}"
         fi
     done
     IFS="${OLDIFS}"
@@ -24,7 +28,7 @@ if [ "${DEBEXEC_GUI}" -eq "1" ]; then
     . "${DIR}"/read-gui.sh # ALLOW_ACCESS=[0|1]
 else
     echo "This application is requesting to install software from the following repositories:" 1>&2
-    echo "${DEBEXEC_REPOSITORIES}" 1>&2
+    echo "${DEBEXEC_REPOSITORIES}" | sed 's/|/\n/' 1>&2
     printf "Grant access to these repositories? (Installation will not proceed if access is not granted.) [yN] " 1>&2
     read ALLOW_ACCESS
 fi

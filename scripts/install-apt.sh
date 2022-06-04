@@ -35,6 +35,8 @@ apt -o APT::Status-Fd=3 install --yes \
     bash \
     apt-utils \
     gzip \
+    libtext-iconv-perl \
+    locales-all \
     mount \
     util-linux \
     wget \

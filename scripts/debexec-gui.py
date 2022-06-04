@@ -1,10 +1,11 @@
-from qt.QtWidgets import (QWizard, QWizardPage, QApplication, QVBoxLayout, QHBoxLayout, QLabel, QRadioButton, QWidget, QSpacerItem, QSizePolicy, QProgressBar)
+from qt.QtWidgets import (QWizard, QWizardPage, QApplication, QVBoxLayout, QHBoxLayout, QLabel, QRadioButton, QWidget, QSpacerItem, QSizePolicy, QProgressBar, QPlainTextEdit, QListWidget)
 from qt.QtCore import (QCoreApplication, Qt, QThread, Signal)
 from enum import (IntEnum, auto)
 from threading import (Lock)
 from signal import (SIGTERM)
 from select import (select)
 
+import codecs
 import sys
 import os
 
@@ -198,6 +199,78 @@ class InstallAppPage(QWizardPage):
     def isComplete(self):
         return False
 
+class DebconfPage(QWizardPage):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setTitle("Debconf Question")
+        self.setSubTitle("")
+        layout = QVBoxLayout()
+        self._description = message = QLabel('')
+        message.setWordWrap(True)
+        layout.addWidget(message)
+        self._extended_description = message = QPlainTextEdit('')
+        message.setReadOnly(True)
+        layout.addWidget(message)
+        self._select = select = QListWidget()
+        layout.addWidget(select)
+        self.setLayout(layout)
+        self._vars = {}
+        self._answers = {}
+        self._question = -1
+    
+    def setData(self, var, data_type, text):
+        if not var in self._vars: self._vars[var] = {}
+        self._vars[var][data_type] = text
+    
+    def setInput(self, priority, var):
+        if not var in self._vars: self._vars[var] = {}
+        self._vars[var]['priority'] = priority
+    
+    def _decode_escape(self, message):
+        return codecs.escape_decode(bytes(message, "utf-8"))[0].decode("utf-8")
+    
+    def getAnswer(self, var):
+        try:
+            return self._answers[var]
+        except:
+            return ''
+    
+    def setAnswer(self):
+        qname = list(self._vars.keys())[self._question]
+        question = list(self._vars.values())[self._question]
+        if question['type'] == 'select':
+            answer = self._select.currentItem().text()
+        else:
+            answer = ''
+        self._answers[qname] = answer
+    
+    def setQuestion(self, qid):
+        self._question = qid
+        question = list(self._vars.values())[self._question]
+        self._description.setText(question['description'])
+        self._extended_description.setPlainText(self._decode_escape(question['extended_description']))
+        self._select.setVisible(question['type'] == 'select')
+        if question['type'] == 'select':
+            choices = question['choices'].split(', ')
+            self._select.clear()
+            self._select.addItems(choices)
+    
+    def validatePage(self):
+        self.setAnswer()
+        if self._question + 1 == len(self._vars):
+            self._vars = {}
+            self._question = -1
+            _send_msg(sys.argv[4], '0 \n')
+            return True
+        self.setQuestion(self._question + 1)
+        return False
+    
+    def nextId(self):
+        return PAGE.INSTALLAPP
+    
+    def isComplete(self):
+        return True
+
 class PAGE(IntEnum):
     STARTUP = auto()
     REPOSITORIES = auto()
@@ -205,6 +278,7 @@ class PAGE(IntEnum):
     DOWNLOAD = auto()
     INSTALLCORE = auto()
     INSTALLAPP = auto()
+    DEBCONF = auto()
     LAUNCHING = auto()
 
 class DebexecWizard(QWizard):
@@ -217,6 +291,7 @@ class DebexecWizard(QWizard):
         self.setPage(PAGE.DOWNLOAD, DownloadPage(parent=self))
         self.setPage(PAGE.INSTALLCORE, InstallCorePage(parent=self))
         self.setPage(PAGE.INSTALLAPP, InstallAppPage(parent=self))
+        self.setPage(PAGE.DEBCONF, DebconfPage(parent=self))
         self.setPage(PAGE.LAUNCHING, LaunchingPage(parent=self))
         self.currentIdChanged.connect(self._idchanged)
         self.rejected.connect(self._rejected)
@@ -235,6 +310,8 @@ class DebexecWizard(QWizard):
         QCoreApplication.quit()
     
     def validateCurrentPage(self):
+        if self.page(self.currentId()).validatePage() == False:
+            return False
         if self.currentId() == PAGE.REPOSITORIES:
             ALLOW_ACCESS='yes' if self.field('allow-repository-access') else 'no'
             self.send_msg(f"ALLOW_ACCESS={ALLOW_ACCESS}")
@@ -304,10 +381,33 @@ class DebexecWizard(QWizard):
             progress_widget.setValue(float(percent))
     
     def debconf_msg(self, data):
-        # TODO: implement debconf passthrough protocol, this behaves the same as the 'noninteractive' backend
-        return '0 \n'
+        data = data.replace('\n', '')
+        msg = data.split(' ')
+        msgtype = msg[0]
+        reply = ''
+        if msgtype == 'TITLE' or msgtype == 'SETTITLE':
+            title = " ".join(msg[1:])
+            self.page(PAGE.DEBCONF).setTitle(title)
+        elif msgtype == 'DATA':
+            var = msg[1]
+            var_type = msg[2]
+            text = " ".join(msg[3:])
+            self.page(PAGE.DEBCONF).setData(var, var_type, text)
+        elif msgtype == 'INPUT':
+            priority = msg[1]
+            var = msg[2]
+            self.page(PAGE.DEBCONF).setInput(priority, var)
+        elif msgtype == 'GO':
+            self.page(PAGE.DEBCONF).setQuestion(0)
+            self.setStartId(PAGE.DEBCONF)
+            self.restart()
+            return None
+        elif msgtype == 'GET':
+            reply = self.page(PAGE.DEBCONF).getAnswer(msg[1])
+        return f'0 {reply}\n'
 
 def _send_msg(_fifo, msg):
+    if msg is None: return
     fifo = open(_fifo, 'w')
     fifo.write(msg)
     fifo.close()

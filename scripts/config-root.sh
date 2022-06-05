@@ -14,12 +14,16 @@ for FILE in ${SPECIAL_DIRS}; do
 done
 pivot_root "${FAKEROOT}" "${FAKEROOT}/REAL_ROOT"
 
-LD_LINUX=$(realpath /REAL_ROOT/lib64/ld-linux-x86-64.so.2)
-
 # "which" is required very early by some scripts
 rm /tmp 2>/dev/null
 mkdir -p /tmp/bin/
 ln -s $(realpath $(which which)) /tmp/bin/which 2>/dev/null
+
+# allow access to our scripts within the container
+mkdir -p "${DIR}"
+mount --bind /REAL_ROOT/"${DIR}" "${DIR}"
+
+LD_LINUX=$(realpath /REAL_ROOT/lib64/ld-linux-x86-64.so.2)
 
 if [ "${CONFIGURED}" = "" ]; then
     # get rid of most of the temporary root system, only keep key files

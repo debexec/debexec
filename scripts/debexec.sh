@@ -48,7 +48,7 @@ SPECIAL_DIRS=$(. "${DIR}"/config-dirs.sh)
 
 . "${DIR}"/query-debconf.sh
 . "${DIR}"/config-root.sh
-DIR=/REAL_ROOT/"${DIR}"
+#DIR=/REAL_ROOT/"${DIR}"
 DEBEXEC_DIR=/REAL_ROOT/"${DEBEXEC_DIR}"
 DEBEXEC_TOGUI=/REAL_ROOT/"${DEBEXEC_TOGUI}"
 DEBEXEC_FROMGUI=/REAL_ROOT/"${DEBEXEC_FROMGUI}"

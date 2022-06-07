@@ -31,7 +31,7 @@ ARGS="$@"
 TRIGA=$(mktemp --tmpdir "debexec-trigA.XXXXXXXXXX")
 TRIGB=$(mktemp --tmpdir "debexec-trigB.XXXXXXXXXX")
 mkfifo "${TRIGA}" "${TRIGB}" 2>/dev/null
-unshare ${FLAGS} /bin/sh -c "echo '' > '${TRIGA}'; cat '${TRIGB}'; rm '${TRIGA}' '${TRIGB}'; ${ARGS}" &
+unshare ${FLAGS} /bin/sh -lc "echo '' > '${TRIGA}'; cat '${TRIGB}'; rm '${TRIGA}' '${TRIGB}'; ${ARGS}" &
 PID=$!
 cat "${TRIGA}"
 if [ "${REVERTUID}" -eq "1" ]; then

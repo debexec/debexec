@@ -12,7 +12,6 @@ for FILE in ${SPECIAL_DIRS}; do
     mkdir -p "${FAKEROOT}/${FILE}"
     mount --rbind $(realpath "/${FILE}") "${FAKEROOT}/${FILE}"
 done
-. "${DIR}"/config-video.sh
 pivot_root "${FAKEROOT}" "${FAKEROOT}/REAL_ROOT"
 
 # "which" is required very early by some scripts
@@ -38,3 +37,4 @@ if [ "${CONFIGURED}" = "" ]; then
     done;
     rm ${FILES} 2>/dev/null;
 fi
+

@@ -46,6 +46,7 @@ DEBPATH=/var/cache/debexec/aptcache
 CONFIGURED=$(cat "${FAKEROOT}"/var/cache/debexec/configured 2>/dev/null)
 SPECIAL_DIRS=$(. "${DIR}"/config-dirs.sh)
 
+COPY_FILES=$(/bin/sh "${DIR}"/get-video.sh)
 . "${DIR}"/query-debconf.sh
 . "${DIR}"/config-root.sh
 #DIR=/REAL_ROOT/"${DIR}"
@@ -60,6 +61,7 @@ if [ "${CONFIGURED}" = "" ]; then
     . "${DIR}"/config-cache.sh
     . "${DIR}"/download-packages.sh
 fi
+/bin/sh "${DIR}"/copy-files.sh ${COPY_FILES}
 if [ "${DEBEXEC_UIDMAP}" -eq "0" ]; then
     . "${DIR}"/config-preload.sh
 fi

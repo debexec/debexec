@@ -9,5 +9,9 @@ for GLX_LIB in ${GLX_LIBS}; do
     LIBS="${LIBS} ${GLX_LIB} ${DEPS}"
 done
 for LIB in ${LIBS}; do
-    cp ${LIB} "${FAKEROOT}"/${LIB}
+    HOST_MD5=$(md5sum "${LIB}" | sed 's/ .*//')
+    CONT_MD5=$(md5sum "${FAKEROOT}"/"${LIB}" | sed 's/ .*//')
+    if [ "${HOST_MD5}" != "${CONT_MD5}" ]; then
+        cp "${LIB}" "${FAKEROOT}"/"${LIB}"
+    fi
 done

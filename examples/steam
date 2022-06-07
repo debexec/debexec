@@ -1,0 +1,5 @@
+EXTRAPACKAGES="steam:i386"
+DEBEXEC_LAUNCH="steam"
+DEBEXEC_PERSIST="debian-unstable"
+DEBEXEC_USEDISK="yes"
+USENETWORK="yes"

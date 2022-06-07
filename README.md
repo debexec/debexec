@@ -9,6 +9,7 @@ Helpful Downloads:
 * [Launch Firefox](https://github.com/debexec/debexec/releases/latest/download/firefox.dxe)
 * [Launch GIMP](https://github.com/debexec/debexec/releases/latest/download/gimp.dxe)
 * [Launch Inkscape](https://github.com/debexec/debexec/releases/latest/download/inkscape.dxe)
+* [Launch Steam](https://github.com/debexec/debexec/releases/latest/download/steam.dxe)
 * [Launch Spotify](https://github.com/debexec/debexec/releases/latest/download/spotify.dxe)
 * [Launch VLC](https://github.com/debexec/debexec/releases/latest/download/vlc.dxe)
 
